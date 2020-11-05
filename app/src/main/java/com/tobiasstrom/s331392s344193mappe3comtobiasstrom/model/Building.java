@@ -1,31 +1,40 @@
 package com.tobiasstrom.s331392s344193mappe3comtobiasstrom.model;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Building {
     private String id;
+    private String title;
     private String address;
+    private String addressNr;
     private String postalNr;
     private String place;
     private int floors;
-    private boolean latLng;
-
+    private double lat;
+    private double lng;
     private String description;
-    private int opening;
-    private int closing;
+    private Date opening;
+    private Date closing;
+    private LatLng latLng;
 
     public Building() {
     }
 
-
-
-    public Building(String id, String address, String postalNr, String place, int floors, boolean latLng, String description, int opening, int closing) {
+    public Building(String id, String address, String postalNr, String place, int floors, double lat, double lng, String description, Date opening, Date closing) {
         this.id = id;
         this.address = address;
         this.postalNr = postalNr;
         this.place = place;
         this.floors = floors;
-        this.latLng = latLng;
+        this.lat = lat;
+        this.lng = lng;
         this.description = description;
-        this.opening = closing;
+        this.opening = opening;
+        this.closing = closing;
     }
 
     public String getId() {
@@ -63,13 +72,23 @@ public class Building {
         this.floors = floors;
     }
 
-    public boolean isLatLng() {
-        return latLng;
+    public double getLat() {
+        return lat;
     }
-    public void setLatLng(boolean latLng) {
-        this.latLng = latLng;
+    public void setLat(double lat) {
+        this.lat = lat;
     }
 
+    public double getLng() {
+        return lng;
+    }
+    public void setLng(double lng) {
+        this.lng = lng;
+    }
+
+    public LatLng getLatLng() {
+        return latLng = new LatLng(getLat(),getLng());
+    }
 
     public String getDescription() {
         return description;
@@ -78,17 +97,70 @@ public class Building {
         this.description = description;
     }
 
-    public int getOpening() {
+    public Date getOpening() {
         return opening;
     }
-    public void setOpening(int opening) {
-        this.opening = opening;
+    public void setOpening(String opening) {
+        Date openings = null;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            openings = sdf.parse(opening);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        this.opening = openings;
     }
 
-    public int getClosing() {
+    public Date getClosing() {
         return closing;
     }
-    public void setClosing(int closing) {
-        this.closing = closing;
+    public void setClosing(String closing) {
+        Date opening = null;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            opening = sdf.parse(closing);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        this.closing = opening;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getAddressNr() {
+        return addressNr;
+    }
+
+    public void setAddressNr(String addressNr) {
+        this.addressNr = addressNr;
+    }
+
+    public void setLatLng(LatLng latLng) {
+        this.latLng = latLng;
+    }
+
+    @Override
+    public String toString() {
+        return "Building{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", address='" + address + '\'' +
+                ", addressNr='" + addressNr + '\'' +
+                ", postalNr='" + postalNr + '\'' +
+                ", place='" + place + '\'' +
+                ", floors=" + floors +
+                ", lat=" + lat +
+                ", lng=" + lng +
+                ", description='" + description + '\'' +
+                ", opening=" + opening +
+                ", closing=" + closing +
+                ", latLng=" + latLng +
+                '}';
     }
 }

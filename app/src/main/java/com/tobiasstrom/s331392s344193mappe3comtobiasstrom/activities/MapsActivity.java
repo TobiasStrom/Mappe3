@@ -1,42 +1,50 @@
 package com.tobiasstrom.s331392s344193mappe3comtobiasstrom.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.ColorDrawable;
-import android.location.Location;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.R;
+import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.model.Building;
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.util.Constants;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -44,7 +52,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private LocationManager locationManager;
     private LocationListener locationListener;
-    private BottomSheetDialogFragment bottomSheetDialog;
 
     private GoogleMap mMap;
     private Marker mOslomet;
@@ -55,6 +62,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Dialog myDialog;
     private Marker pressedMarker;
     private Marker mMarker;
+    public Building newBuilding;
+    public Building selectedBuilding = new Building();
+    private List<Building> buildings = new ArrayList<>();
+    private Map<String, Building> mapBulding = new HashMap<>();
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
 
     @Override
@@ -65,38 +77,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        getSavedLocation task= new getSavedLocation();
+        task.execute(new String[]{"http://student.cs.hioa.no/~s344193/AppApi/getHus.php"});
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-
         List<Marker> markerList = new ArrayList<>();
 
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         mOslomet = mMap.addMarker(new MarkerOptions().position(Constants.osloMet).title("Oslomet"));
-        mOslomet.setTag(0);
-        markerList.add(mOslomet);
-
-        mP32 = mMap.addMarker(new MarkerOptions().position(Constants.p32).title("P32"));
-        mP32.setTag(0);
-        markerList.add(mP32);
-
-        mP46 = mMap.addMarker(new MarkerOptions().position(Constants.p46).title("P46"));
-        mP46.setTag(0);
-        markerList.add(mP46);
-
-        mP35 = mMap.addMarker(new MarkerOptions().position(Constants.p35).title("P35"));
-        mP35.setTag(0);
-        markerList.add(mP35);
-
-        mP52 = mMap.addMarker(new MarkerOptions().position(Constants.p52).title("P52"));
-        mP52.setTag(0);
-        markerList.add(mP52);
-
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Constants.osloMet,17));
 
@@ -106,58 +99,237 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng point) {
-                MarkerOptions options = new MarkerOptions()
-                        .position(point);
-                mMarker = mMap.addMarker(options);
-                Log.e(TAG, "onMapLongClick: " + point );
-                showPopup(-1);
+
+                //showPopup(-1);
+                Geocoder gcd = new Geocoder(MapsActivity.this, Locale.getDefault());
+                List<Address> addresses = null;
+                try {
+                    addresses = gcd.getFromLocation(point.latitude, point.longitude, 1);
+                    if (addresses.size() > 0)
+                    {
+                        Log.d(TAG, "onMapLongClick: " + addresses.toString());
+                        if(addresses.get(0).getThoroughfare() == null || addresses.get(0).getThoroughfare().equals("Unnamed Road")){
+                            Context context = getApplicationContext();
+                            CharSequence text = "Det er ingen addresse på dette stedet!";
+                            int duration = Toast.LENGTH_SHORT;
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        }else {
+                            newBuilding = new Building();
+                            newBuilding.setAddress(addresses.get(0).getThoroughfare());
+                            newBuilding.setAddressNr(addresses.get(0).getFeatureName());
+                            newBuilding.setPlace(addresses.get(0).getAdminArea());
+                            newBuilding.setPostalNr(addresses.get(0).getPostalCode());
+                            newBuilding.setLng(point.longitude);
+                            newBuilding.setLat(point.latitude);
+                            MarkerOptions options = new MarkerOptions()
+                                    .position(point);
+                            //mMarker = mMap.addMarker(options);
+                            showPopup(null);
+                        }
+                    }
+                    else
+                    {
+                        // do your staff
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        Log.e(TAG, "onMarkerClick: test");
         Integer clickCount = (Integer) marker.getTag();
-        if (clickCount!= null){
-            clickCount = clickCount + 1;
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(),17));
 
-            marker.setTag(clickCount);
+        String url = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?gpsLat="+ marker.getPosition().latitude +"&gpsLong="+marker.getPosition().longitude;
+        Log.e(TAG, "onMarkerClick: " + url );
+        getBuilding task= new getBuilding();
+        task.execute(new String[]{url});
 
-            //Toast.makeText(this, marker.getTitle() + " has been clicked " + clickCount + " times", Toast.LENGTH_SHORT).show();
-            pressedMarker = marker;
-            Log.e(TAG, "onMarkerClick: inne" );
-            //Intent intent = new Intent(MapsActivity.this, BuildingActivity.class);
-            //startActivity(intent);
-
-        }
-        showPopup(1);
         return false;
     }
 
-    public void showPopup(int i){
+    public void showPopup(Building building){
+
         myDialog = new Dialog(this);
         myDialog.setContentView(R.layout.map_information);
-        TextView mapAdress = myDialog.findViewById(R.id.mapAdress);
+        EditText txtTilte = myDialog.findViewById(R.id.txtTilte);
+        TextView txtMapAdress = myDialog.findViewById(R.id.txtMapAdress);
         Button openBuilding = myDialog.findViewById(R.id.openBuilding);
-        if (i == -1){
-            mapAdress.setText("Dette er en ny adresse");
-            openBuilding.setText("Opprett Bygning");
+        EditText txtFloors = myDialog.findViewById(R.id.txtFloors);
+        EditText txtOpening = myDialog.findViewById(R.id.txtOpening);
+        EditText txtClosing = myDialog.findViewById(R.id.txtClosing);
+        EditText txtDescription = myDialog.findViewById(R.id.txtDescription);
+        Button btnRoom = myDialog.findViewById(R.id.btnRoom);
+        btnRoom.setEnabled(false);
+        btnRoom.setText("Rom");
+
+        txtMapAdress.setText(building.getAddress() + " " + building.getAddressNr()
+                + ", " + building.getPostalNr() + " " + building.getPlace());
+
+        if (building == null){
+            openBuilding.setText("Opprett");
+            openBuilding.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    openBuilding.setText("Oppdater");
+                    btnRoom.setEnabled(true);
+                    mMap.addMarker(new MarkerOptions().position(newBuilding.getLatLng()).title(newBuilding.getAddress())).getId();
+                }
+            });
+
+
         }else{
-            mapAdress.setText(pressedMarker.getTitle());
-            openBuilding.setText("Vis detaljer");
+            txtTilte.setText(building.getTitle());
+            txtFloors.setText(building.getFloors()+" ");
+            txtOpening.setText(building.getOpening().getHours() +"");
+            txtClosing.setText(building.getClosing().getHours()+ "");
+            txtDescription.setText(building.getDescription());
+            openBuilding.setText("Oppdater");
+            btnRoom.setEnabled(true);
+
         }
-        openBuilding.setOnClickListener(new View.OnClickListener() {
+
+        btnRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MapsActivity.this, BuildingActivity.class);
-                startActivity(intent);
+                Intent intent = new Intent(MapsActivity.this, RomActivity.class);
+                MapsActivity.this.startActivity(intent);
             }
         });
-
-
         myDialog.show();
-        Log.e(TAG, "showPopup: my dialog" );
 
+    }
+    private class getSavedLocation extends AsyncTask<String, Void,String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            String retur = "";
+            String s = "";
+            String output = "";
+            for (String url : urls) {
+                try {
+                    URL urlen = new URL(urls[0]);
+                    HttpURLConnection conn = (HttpURLConnection)
+                            urlen.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setRequestProperty("Accept",
+                            "application/json");
+                    if (conn.getResponseCode() != 200) {
+                        throw new RuntimeException("Failed : HTTP error code : "
+                                + conn.getResponseCode());
+                    }
+                    BufferedReader br = new BufferedReader(new InputStreamReader(
+                            (conn.getInputStream())));
+                    System.out.println("Output from Server .... \n");
+                    while ((s = br.readLine()) != null) {
+                        output = output + s;
+                    }
+                    conn.disconnect();
+                    try {
+                        JSONArray building = new JSONArray(output);
+                        for (int i = 0; i < building.length(); i++) {
+                            JSONObject jsonobject = building.getJSONObject(i);
+                            Building newBuilding = new Building();
+                            newBuilding.setLat(jsonobject.getDouble("gpsLat"));
+                            newBuilding.setLng(jsonobject.getDouble("gpsLong"));
+                            buildings.add(newBuilding);
+                        }
+                        return retur;
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    return retur;
+                } catch (Exception e) {
+                    return "Noe gikk feil";
+                }
+            }
+            return retur;
+
+        }
+        @Override
+        protected void onPostExecute(String ss) {
+            for(Building building: buildings){
+                mMap.addMarker(new MarkerOptions().position(building.getLatLng()).title(building.getAddress())).getId();
+            }
+        }
+
+
+    }
+
+    public class getBuilding extends AsyncTask<String, Void,String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            String retur = "";
+            String s = "";
+            String output = "";
+            for (String url : urls) {
+                try {
+                    URL urlen = new URL(urls[0]);
+                    HttpURLConnection conn = (HttpURLConnection)
+                            urlen.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Accept",
+                            "application/json");
+                    if (conn.getResponseCode() != 200) {
+                        throw new RuntimeException("Failed : HTTP error code : "
+                                + conn.getResponseCode());
+                    }
+                    BufferedReader br = new BufferedReader(new InputStreamReader(
+                            (conn.getInputStream())));
+                    System.out.println("Output from Server .... \n");
+                    while ((s = br.readLine()) != null) {
+                        output = output + s;
+                    }
+                    conn.disconnect();
+                    try {
+                        JSONArray building = new JSONArray(output);
+                        JSONObject jsonobject = building.getJSONObject(0);
+                        selectedBuilding = new Building();
+                        String id = jsonobject.getString("idHus");
+                        String tittel = jsonobject.getString("tittel");
+                        String gate = jsonobject.getString("gate");
+                        String beskrivelse = jsonobject.getString("beskrivelse");
+                        String gateNr = jsonobject.getString("gateNr");
+                        String postNr = jsonobject.getString("postNummer");
+                        String poststed = jsonobject.getString("postSted");
+                        Double lat = jsonobject.getDouble("gpsLat");
+                        Double lng = jsonobject.getDouble("gpsLong");
+                        int etasjer = jsonobject.getInt("antallEtasjer");
+                        String tidStart = jsonobject.getString("aapenTid");
+                        String tidStenge = jsonobject.getString("stengtTid");
+                        selectedBuilding.setId(id);
+                        selectedBuilding.setTitle(tittel);
+                        selectedBuilding.setAddress(gate);
+                        selectedBuilding.setAddressNr(gateNr);
+                        selectedBuilding.setPostalNr(postNr);
+                        selectedBuilding.setPlace(poststed);
+                        selectedBuilding.setLat(lat);
+                        selectedBuilding.setLng(lng);
+                        selectedBuilding.setFloors(etasjer);
+                        selectedBuilding.setDescription(beskrivelse);
+                        selectedBuilding.setOpening(tidStart);
+                        selectedBuilding.setClosing(tidStenge);
+                        newBuilding = selectedBuilding;
+
+                        return retur;
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    return retur;
+                } catch (Exception e) {
+                    return "Noe gikk feil";
+                }
+            }
+            return retur;
+        }
+        @Override
+        protected void onPostExecute(String ss) {
+            Log.e(TAG, "onPostExecute: " + selectedBuilding.toString() );
+            showPopup(selectedBuilding);
+        }
     }
 }
