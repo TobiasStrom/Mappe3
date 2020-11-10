@@ -1,48 +1,57 @@
 package com.tobiasstrom.s331392s344193mappe3comtobiasstrom.model;
 
 public class Room {
-    private int id;
-    private int floorNr;
-    private int roomNr;
-    private int capacity;
+    private String id;
+    private String idHouse;
+    private String floorNr;
+    private String roomNr;
+    private String capacity;
     private String description;
 
     public Room() {
     }
 
-    public Room(int id, int floorNr, int roomNr, int capacity, String description) {
+    public Room(String id,String idHouse ,  String floorNr, String roomNr, String capacity, String description) {
         this.id = id;
+        this.idHouse = id;
         this.floorNr = floorNr;
         this.roomNr = roomNr;
         this.capacity = capacity;
         this.description = description;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getFloorNr() {
+    public String getIdHouse() {
+        return idHouse;
+    }
+    public void setIdHouse(String idHouse) {
+        this.idHouse = idHouse;
+    }
+
+    public String getFloorNr() {
         return floorNr;
     }
-    public void setFloorNr(int floorNr) {
+    public void setFloorNr(String floorNr) {
         this.floorNr = floorNr;
     }
 
-    public int getRoomNr() {
+    public String getRoomNr() {
         return roomNr;
     }
-    public void setRoomNr(int roomNr) {
+    public void setRoomNr(String roomNr) {
         this.roomNr = roomNr;
     }
 
-    public int getCapacity() {
+    public String getCapacity() {
         return capacity;
     }
-    public void setCapacity(int capacity) {
+    public void setCapacity(String capacity) {
         this.capacity = capacity;
     }
 
@@ -51,5 +60,17 @@ public class Room {
     }
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "Room{" +
+                "id='" + id + '\'' +
+                ", idHouse='" + idHouse + '\'' +
+                ", floorNr=" + floorNr +
+                ", roomNr=" + roomNr +
+                ", capacity=" + capacity +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

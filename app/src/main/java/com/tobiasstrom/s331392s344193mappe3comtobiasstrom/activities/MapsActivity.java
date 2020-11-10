@@ -12,7 +12,10 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -36,8 +39,10 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -89,12 +94,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        mOslomet = mMap.addMarker(new MarkerOptions().position(Constants.osloMet).title("Oslomet"));
+        //mOslomet = mMap.addMarker(new MarkerOptions().position(Constants.osloMet).title("Oslomet"));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Constants.osloMet,17));
 
         mMap.setOnMarkerClickListener(this);
-
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -122,6 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             newBuilding.setPostalNr(addresses.get(0).getPostalCode());
                             newBuilding.setLng(point.longitude);
                             newBuilding.setLat(point.latitude);
+
                             MarkerOptions options = new MarkerOptions()
                                     .position(point);
                             //mMarker = mMap.addMarker(options);
@@ -143,6 +148,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public boolean onMarkerClick(Marker marker) {
         Integer clickCount = (Integer) marker.getTag();
+        //LatLng lng = marker.getPosition().longitude + 0.03;
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(),17));
 
         String url = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?gpsLat="+ marker.getPosition().latitude +"&gpsLong="+marker.getPosition().longitude;
@@ -157,6 +163,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         myDialog = new Dialog(this);
         myDialog.setContentView(R.layout.map_information);
+
+        Window window = myDialog.getWindow();
+        WindowManager.LayoutParams wpl = window.getAttributes();
+
+        wpl.gravity = Gravity.BOTTOM;
+        wpl.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+        window.setAttributes(wpl);
         EditText txtTilte = myDialog.findViewById(R.id.txtTilte);
         TextView txtMapAdress = myDialog.findViewById(R.id.txtMapAdress);
         Button openBuilding = myDialog.findViewById(R.id.openBuilding);
@@ -168,22 +181,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         btnRoom.setEnabled(false);
         btnRoom.setText("Rom");
 
-        txtMapAdress.setText(building.getAddress() + " " + building.getAddressNr()
-                + ", " + building.getPostalNr() + " " + building.getPlace());
+
 
         if (building == null){
             openBuilding.setText("Opprett");
+            txtMapAdress.setText(newBuilding.getAddress() + " " + newBuilding.getAddressNr()
+                    + ", " + newBuilding.getPostalNr() + " " + newBuilding.getPlace());
             openBuilding.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    String opening = txtOpening.getText().toString();
+                    String closing = txtClosing.getText().toString();
+                    String title = txtTilte.getText().toString();
+                    String description = txtDescription.getText().toString();
+                    String floors = txtFloors.getText().toString();
+                    String titleEncode = "";
+                    String descriptionEncode = "";
                     openBuilding.setText("Oppdater");
                     btnRoom.setEnabled(true);
-                    mMap.addMarker(new MarkerOptions().position(newBuilding.getLatLng()).title(newBuilding.getAddress())).getId();
+                    boolean right = true;
+                    mMap.addMarker(new MarkerOptions().position(newBuilding.getLatLng()).title(newBuilding.getTitle())).getId();
+                    try {
+                        titleEncode = URLEncoder.encode(title, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                        right = false;
+                    }
+                    try {
+                        descriptionEncode = URLEncoder.encode(description, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                        right = false;
+                    }
+                    if(right){
+                        String url = "http://student.cs.hioa.no/~s344193/AppApi/addHus.php?tittel="+ titleEncode +"&beskrivelse="+ descriptionEncode +"&gate="+newBuilding.getAddress() +"&gateNr="+ newBuilding.getAddressNr() +"&postNr="+newBuilding.getPostalNr() +"&postSted="+newBuilding.getPlace() +"&gpsLat="+ newBuilding.getLat()+"&gpsLong="+newBuilding.getLng()+"&antallEtasjer="+floors+"&aapenTid="+opening+":00:00&stengtTid="+closing+":00:00";
+                        Log.e(TAG, "onClick: " + url );
+                        url.replace(" ", "20%");
+                        addBuilding task= new addBuilding();
+                        task.execute(new String[]{url});
+                    }
                 }
             });
-
-
         }else{
+            txtMapAdress.setText(building.getAddress() + " " + building.getAddressNr()
+                    + ", " + building.getPostalNr() + " " + building.getPlace());
             txtTilte.setText(building.getTitle());
             txtFloors.setText(building.getFloors()+" ");
             txtOpening.setText(building.getOpening().getHours() +"");
@@ -198,6 +239,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MapsActivity.this, RomActivity.class);
+                if(building == null){
+                    intent.putExtra("id", newBuilding.getId());
+                }else {
+                    intent.putExtra("id", building.getId());
+                }
                 MapsActivity.this.startActivity(intent);
             }
         });
@@ -331,5 +377,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.e(TAG, "onPostExecute: " + selectedBuilding.toString() );
             showPopup(selectedBuilding);
         }
+
+    }
+    public class addBuilding extends AsyncTask<String, Void,String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            String retur = "";
+            String s = "";
+            String output = "";
+            for (String url : urls) {
+                try {
+                    URL urlen = new URL(urls[0]);
+                    HttpURLConnection conn = (HttpURLConnection)
+                            urlen.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Accept",
+                            "application/json");
+                    if (conn.getResponseCode() != 200) {
+                        throw new RuntimeException("Failed : HTTP error code : "
+                                + conn.getResponseCode());
+                    }
+                    BufferedReader br = new BufferedReader(new InputStreamReader(
+                            (conn.getInputStream())));
+                    System.out.println("Output from Server .... \n");
+                    while ((s = br.readLine()) != null) {
+                        output = output + s;
+                    }
+                    conn.disconnect();
+                    return retur;
+                } catch (Exception e) {
+                    return "Noe gikk feil";
+                }
+            }
+            return retur;
+        }
+        @Override
+        protected void onPostExecute(String ss) {
+            Log.e(TAG, "onPostExecute: Du har opprettet en bygning");
+
+        }
+
     }
 }

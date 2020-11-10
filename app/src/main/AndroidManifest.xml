@@ -16,7 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.S331392s344193mappe3comtobiasstrom">
-        <activity android:name=".activities.RomActivity"></activity>
+        <activity android:name=".activities.MeetingActivity" />
+        <activity android:name=".activities.RomActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
