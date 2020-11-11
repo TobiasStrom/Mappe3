@@ -26,7 +26,6 @@
         android:ems="10"
         android:hint="Tittel"
         android:inputType="textPersonName"
-        android:text="Name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -55,6 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="100dp"
         android:ems="10"
+        android:hint="3"
         android:inputType="number"
         android:textSize="14sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/floors"
@@ -76,6 +76,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="100dp"
         android:ems="10"
+        android:hint="8"
         android:inputType="number"
         android:textSize="14sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/textView6"
@@ -87,6 +88,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:ems="10"
+        android:hint="16"
         android:inputType="number"
         android:textSize="14sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/textView6"

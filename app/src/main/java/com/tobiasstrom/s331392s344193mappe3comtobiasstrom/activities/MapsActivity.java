@@ -193,10 +193,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String floors = txtFloors.getText().toString();
                     String titleEncode = "";
                     String descriptionEncode = "";
-                    openBuilding.setText("Oppdater");
                     btnRoom.setEnabled(true);
                     boolean right = true;
-                    mMap.addMarker(new MarkerOptions().position(newBuilding.getLatLng()).title(newBuilding.getTitle())).getId();
+
                     try {
                         titleEncode = URLEncoder.encode(title, "UTF-8");
                     } catch (UnsupportedEncodingException e) {
@@ -209,6 +208,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         e.printStackTrace();
                         right = false;
                     }
+                    int floorInt = Integer.parseInt(floors);
+                    
+                    int openingInt = Integer.parseInt(opening);
+                    int closingInt = Integer.parseInt(closing);
+                    if(openingInt >= closingInt){
+                        right = false;
+                    }
+                    if(openingInt < 0){
+                        right = false;
+                    }
+                    if (openingInt > 23){
+                        right = false;
+                    }
+                    if (closingInt<0){
+                        right = false;
+                    }
+                    if (closingInt > 23) {
+                        right = false;
+                    }
+                    if(txtClosing.getText().toString().isEmpty()){
+
+                    }
+
                     if(right){
                         String url = "http://student.cs.hioa.no/~s344193/AppApi/addHus.php?tittel="+ titleEncode +"&beskrivelse="+ descriptionEncode +"&gate="+newBuilding.getAddress() +"&gateNr="+ newBuilding.getAddressNr() +"&postNr="+newBuilding.getPostalNr() +"&postSted="+newBuilding.getPlace() +"&gpsLat="+ newBuilding.getLat()+"&gpsLong="+newBuilding.getLng()+"&antallEtasjer="+floors+"&aapenTid="+opening+":00:00&stengtTid="+closing+":00:00";
                         String url2 = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?gpsLat="+ newBuilding.getLat() +"&gpsLong="+newBuilding.getLng();
@@ -218,7 +240,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         task.execute(new String[]{url});
                         getBuilding task2 = new getBuilding();
                         task2.execute(new String[]{url2});
+                        mMap.addMarker(new MarkerOptions().position(newBuilding.getLatLng()).title(newBuilding.getTitle()));
+                        openBuilding.setText("Oppdater");
 
+                    }else {
+                        CharSequence text = "Her var det noe feil med inputen";
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast toast = Toast.makeText(MapsActivity.this, text, duration);
+                        toast.show();
                     }
                 }
             });
