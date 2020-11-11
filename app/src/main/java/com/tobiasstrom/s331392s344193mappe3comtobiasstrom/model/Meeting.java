@@ -9,6 +9,7 @@ public class Meeting {
     private String idRoom;
     private Date start;
     private Date end;
+    private boolean selected;
 
     public Meeting() {
     }
@@ -47,6 +48,9 @@ public class Meeting {
         }
         this.start = starts;
     }
+    public void setStart(Date start){
+        this.start =start;
+    }
 
     public Date getEnd() {
         return end;
@@ -60,6 +64,17 @@ public class Meeting {
             e.printStackTrace();
         }
         this.end = ends;
+    }
+    public void setEnd(Date end){
+        this.end = end;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     @Override

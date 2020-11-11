@@ -103,8 +103,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng point) {
-
-                //showPopup(-1);
                 Geocoder gcd = new Geocoder(MapsActivity.this, Locale.getDefault());
                 List<Address> addresses = null;
                 try {
@@ -181,8 +179,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         btnRoom.setEnabled(false);
         btnRoom.setText("Rom");
 
-
-
         if (building == null){
             openBuilding.setText("Opprett");
             txtMapAdress.setText(newBuilding.getAddress() + " " + newBuilding.getAddressNr()
@@ -215,10 +211,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     if(right){
                         String url = "http://student.cs.hioa.no/~s344193/AppApi/addHus.php?tittel="+ titleEncode +"&beskrivelse="+ descriptionEncode +"&gate="+newBuilding.getAddress() +"&gateNr="+ newBuilding.getAddressNr() +"&postNr="+newBuilding.getPostalNr() +"&postSted="+newBuilding.getPlace() +"&gpsLat="+ newBuilding.getLat()+"&gpsLong="+newBuilding.getLng()+"&antallEtasjer="+floors+"&aapenTid="+opening+":00:00&stengtTid="+closing+":00:00";
+                        String url2 = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?gpsLat="+ newBuilding.getLat() +"&gpsLong="+newBuilding.getLng();
                         Log.e(TAG, "onClick: " + url );
                         url.replace(" ", "20%");
                         addBuilding task= new addBuilding();
                         task.execute(new String[]{url});
+                        getBuilding task2 = new getBuilding();
+                        task2.execute(new String[]{url2});
+
                     }
                 }
             });
@@ -241,6 +241,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Intent intent = new Intent(MapsActivity.this, RomActivity.class);
                 if(building == null){
                     intent.putExtra("id", newBuilding.getId());
+                    Log.e(TAG, "onClick: kommer den hit" + newBuilding.getId() );
                 }else {
                     intent.putExtra("id", building.getId());
                 }

@@ -2,6 +2,7 @@ package com.tobiasstrom.s331392s344193mappe3comtobiasstrom.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,6 +75,8 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
                     room = roomList.get(position);
                     Intent intent = new Intent(context, MeetingActivity.class);
                     intent.putExtra("id", room.getId());
+                    intent.putExtra("idHouse", room.getIdHouse());
+                    Log.e(TAG, "onClick: " + room.getId() );
                     context.startActivity(intent);
                 }
             });

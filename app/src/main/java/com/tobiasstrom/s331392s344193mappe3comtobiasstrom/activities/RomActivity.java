@@ -39,7 +39,7 @@ import java.util.List;
 
 public class RomActivity extends AppCompatActivity {
     private static final String TAG = "RomActivity";
-    //private ActionBar toolbar;
+    private ActionBar toolbar;
     private TextView txtBuildingTitle;
     private String idBuilding;
     private Room room;
@@ -52,12 +52,15 @@ public class RomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rom);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
+        toolbar = getSupportActionBar();
+        //toolbar.setTitle("Hei");
+
+
 
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
             idBuilding = bundle.getString("id");
+            Log.e(TAG, "onCreate: " + idBuilding );
         }
         String url = "http://student.cs.hioa.no/~s344193/AppApi/getRom.php?idHus=" + idBuilding;
         Log.e(TAG, "onCreate: " + url );
@@ -74,6 +77,19 @@ public class RomActivity extends AppCompatActivity {
         });
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.contact_menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.e(TAG, "onOptionsItemSelected: her" );
+        return  super.onOptionsItemSelected(item);
+    }
+
     public class getRoom extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -184,6 +200,7 @@ public class RomActivity extends AppCompatActivity {
                         url.replace(" ", "20%");
                         addRoom task = new addRoom();
                         task.execute(new String[]{url});
+                        myDialog.cancel();
 
                     }
                 }

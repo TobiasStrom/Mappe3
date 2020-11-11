@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.R;
+import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.model.Building;
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.model.Meeting;
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.model.Room;
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.ui.MeetingRecyclerViewAdapter;
@@ -27,48 +28,95 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import static com.tobiasstrom.s331392s344193mappe3comtobiasstrom.util.Constants.selectedMeetings;
 
 public class MeetingActivity extends AppCompatActivity {
     private static final String TAG = "MeetingActivity";
     private String idRoom;
+    private String idHouse;
     private Meeting meeting;
+    private int houseOpening;
+    private int houseClosing;
     private List<Meeting> meetingList = new ArrayList<>();
     private MeetingRecyclerViewAdapter recyclerViewAdapter;
     private Button addMeetingRoom;
     private Dialog myDialog;
+    private Button btnLast;
+    private Button btnNext;
+    private TextView txtDate;
+    public Calendar calendar;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+    private SimpleDateFormat dateFormatDate = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+    private String date;
+    public Building selectedBuilding = new Building();
+    private List<Meeting> dayMeeting = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meeting);
+        txtDate = findViewById(R.id.txtDate);
+        btnLast = findViewById(R.id.btnLast);
+        btnNext = findViewById(R.id.btnNext);
 
+        calendar = Calendar.getInstance();
+        date = dateFormat.format(calendar.getTime());
+        txtDate.setText(date);
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
             idRoom = bundle.getString("id");
+            idHouse = bundle.getString("idHouse");
         }
         Log.e(TAG, "onCreate: "+ idRoom );
 
         String url = "http://student.cs.hioa.no/~s344193/AppApi/getReservasjon.php?idRom=" + idRoom;
+        String urlHus = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?idHus="+ idHouse;
         Log.e(TAG, "onCreate: "+ url);
+        Log.e(TAG, "onCreate: " + urlHus);
         getMeeting task = new getMeeting();
         task.execute(new String[]{url});
-        addMeetingRoom = findViewById(R.id.addMeetingRoom);
+        getBuilding taskBuilding = new getBuilding();
+        taskBuilding.execute(new String[]{urlHus});
 
-        addMeetingRoom.setOnClickListener(new View.OnClickListener() {
+
+
+        btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showPopup(null);
-                Log.e(TAG, "onClick: har jeg trykket " );
+                nextDay();
             }
         });
+        btnLast.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                lastDay();
+            }
+        });
+
+        /*
+
+
+         */
+
+
+
+
+
+
+
 
 
     }
     public class getMeeting extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {
+            selectedMeetings.clear();
             String retur = "";
             String s = "";
             String output = "";
@@ -104,7 +152,7 @@ public class MeetingActivity extends AppCompatActivity {
                             meeting.setIdRoom(idRoom);
                             meeting.setStart(startTime);
                             meeting.setEnd(endTime);
-                            meetingList.add(meeting);
+                            selectedMeetings.add(meeting);
                         }
                         return retur;
                     } catch (JSONException e) {
@@ -122,37 +170,179 @@ public class MeetingActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String ss) {
             Log.e(TAG, "onPostExecute: Har hentet ut room ");
-            RecyclerView recyclerView = findViewById(R.id.rvMeeting);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setLayoutManager(new LinearLayoutManager(MeetingActivity.this));
-            recyclerViewAdapter = new MeetingRecyclerViewAdapter(MeetingActivity.this, meetingList);
-            if (meetingList.size() > 0) {
-                recyclerView.setAdapter(recyclerViewAdapter);
-            }
-
+            populateRV(meetingList);
         }
     }
-    public void showPopup(Meeting meeting){
-        myDialog = new Dialog(this);
 
-        myDialog.setContentView(R.layout.add_meeting);
-        EditText txtMeetingStartTime = myDialog.findViewById(R.id.txtMeetingStart);
-        EditText txtMeetingEndTime = myDialog.findViewById((R.id.txtMeetingMeetingEndTime));
-        Button addMeeting = myDialog.findViewById(R.id.addMeeting);
-        if(meeting == null){
-            addMeeting.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String startTime = txtMeetingStartTime.getText().toString();
-                    String endtime = txtMeetingEndTime.getText().toString();
-                    String url = "http://student.cs.hioa.no/~s344193/AppApi/addReservasjon.php?idRom=0&startDato=YYYY-MM-DD20%HH:mm:SS&sluttDato=YYYY-MM-DD HH:mm:SS";
-                    Log.e(TAG, "onClick: " + url );
+    public class addMeeting extends AsyncTask<String, Void,String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            String retur = "";
+            String s = "";
+            String output = "";
+            for (String url : urls) {
+                try {
+                    URL urlen = new URL(urls[0]);
+                    HttpURLConnection conn = (HttpURLConnection)
+                            urlen.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Accept",
+                            "application/json");
+                    if (conn.getResponseCode() != 200) {
+                        throw new RuntimeException("Failed : HTTP error code : "
+                                + conn.getResponseCode());
+                    }
+                    BufferedReader br = new BufferedReader(new InputStreamReader(
+                            (conn.getInputStream())));
+                    System.out.println("Output from Server .... \n");
+                    while ((s = br.readLine()) != null) {
+                        output = output + s;
+                    }
+                    conn.disconnect();
+                    return retur;
+                } catch (Exception e) {
+                    return "Noe gikk feil";
                 }
-
-            });
-
+            }
+            return retur;
         }
-        myDialog.show();
+
+        @Override
+        protected void onPostExecute(String ss) {
+            Log.e(TAG, "onPostExecute: Du har opprettet et møte");
+        }
+    }
+    public void nextDay(){
+        selectedMeetings.clear();
+        calendar.add(Calendar.DATE, 1);
+        date = dateFormat.format(calendar.getTime());
+        txtDate.setText(date);
+        buildList();
 
     }
+    public void lastDay(){
+        selectedMeetings.clear();
+        calendar.add(Calendar.DATE, -1);
+        date = dateFormat.format(calendar.getTime());
+        txtDate.setText(date);
+        buildList();
+    }
+    public void populateRV(List<Meeting> listMeeting){
+        RecyclerView recyclerView = findViewById(R.id.rvMeeting);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(MeetingActivity.this));
+        recyclerViewAdapter = new MeetingRecyclerViewAdapter(MeetingActivity.this, listMeeting);
+        if (listMeeting.size() > 0) {
+            recyclerView.setAdapter(recyclerViewAdapter);
+        }
+    }
+
+    public class getBuilding extends AsyncTask<String, Void,String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            String retur = "";
+            String s = "";
+            String output = "";
+            for (String url : urls) {
+                try {
+                    URL urlen = new URL(urls[0]);
+                    HttpURLConnection conn = (HttpURLConnection)
+                            urlen.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Accept",
+                            "application/json");
+                    if (conn.getResponseCode() != 200) {
+                        throw new RuntimeException("Failed : HTTP error code : "
+                                + conn.getResponseCode());
+                    }
+                    BufferedReader br = new BufferedReader(new InputStreamReader(
+                            (conn.getInputStream())));
+                    System.out.println("Output from Server .... \n");
+                    while ((s = br.readLine()) != null) {
+                        output = output + s;
+                    }
+                    conn.disconnect();
+                    try {
+                        JSONArray building = new JSONArray(output);
+                        JSONObject jsonobject = building.getJSONObject(0);
+                        selectedBuilding = new Building();
+                        String id = jsonobject.getString("idHus");
+                        String tittel = jsonobject.getString("tittel");
+                        String gate = jsonobject.getString("gate");
+                        String beskrivelse = jsonobject.getString("beskrivelse");
+                        String gateNr = jsonobject.getString("gateNr");
+                        String postNr = jsonobject.getString("postNummer");
+                        String poststed = jsonobject.getString("postSted");
+                        Double lat = jsonobject.getDouble("gpsLat");
+                        Double lng = jsonobject.getDouble("gpsLong");
+                        int etasjer = jsonobject.getInt("antallEtasjer");
+                        String tidStart = jsonobject.getString("aapenTid");
+                        String tidStenge = jsonobject.getString("stengtTid");
+                        selectedBuilding.setId(id);
+                        selectedBuilding.setTitle(tittel);
+                        selectedBuilding.setAddress(gate);
+                        selectedBuilding.setAddressNr(gateNr);
+                        selectedBuilding.setPostalNr(postNr);
+                        selectedBuilding.setPlace(poststed);
+                        selectedBuilding.setLat(lat);
+                        selectedBuilding.setLng(lng);
+                        selectedBuilding.setFloors(etasjer);
+                        selectedBuilding.setDescription(beskrivelse);
+                        selectedBuilding.setOpening(tidStart);
+                        selectedBuilding.setClosing(tidStenge);
+
+                        return retur;
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    return retur;
+                } catch (Exception e) {
+                    return "Noe gikk feil";
+                }
+            }
+            return retur;
+        }
+        @Override
+        protected void onPostExecute(String ss) {
+            Log.e(TAG, "onPostExecute: " + selectedBuilding.toString() );
+            houseOpening = selectedBuilding.getOpening().getHours();
+            houseClosing = selectedBuilding.getClosing().getHours();
+            Log.e(TAG, "onCreate: "+ houseOpening + "   " + houseClosing );
+            buildList();
+        }
+
+    }
+    public void buildList() {
+        meetingList.clear();
+        int teller = 0;
+
+        for(int i = houseOpening; i < houseClosing; i++){
+            Meeting newMeeting = new Meeting();
+            newMeeting.setIdRoom(idRoom);
+            Calendar newCaledar = calendar;
+            newCaledar.set(Calendar.HOUR_OF_DAY,i);
+            newCaledar.set(Calendar.MINUTE, 0);
+            newCaledar.set(Calendar.SECOND,0);
+            Log.e(TAG, "buildList: " + newCaledar.getTime() );
+            String start = dateFormatDate.format(newCaledar.getTime());
+            newMeeting.setStart(start);
+            int to = i + 1;
+            newCaledar.set(Calendar.HOUR_OF_DAY,to);
+            Log.e(TAG, "buildList: " + newCaledar.getTime() );
+            String end = dateFormatDate.format(newCaledar.getTime());
+            newMeeting.setEnd(end);
+            if(selectedMeetings.size()>0){
+                for (Meeting meeting : selectedMeetings){
+                    if (newMeeting.getStart().compareTo(meeting.getStart()) == 0 && idRoom == newMeeting.getIdRoom()){
+                        newMeeting = meeting;
+                        break;
+                    }
+                }
+            }
+            meetingList.add(newMeeting);
+        }
+        Log.e(TAG, "buildList: Teller " + teller );
+        populateRV(meetingList);
+    }
+
 }
