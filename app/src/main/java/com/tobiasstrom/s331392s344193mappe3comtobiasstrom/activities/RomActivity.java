@@ -117,7 +117,6 @@ public class RomActivity extends AppCompatActivity {
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }
@@ -162,6 +161,11 @@ public class RomActivity extends AppCompatActivity {
             roomRecyclerViewAdapter = new RoomRecyclerViewAdapter(RomActivity.this, roomList);
             if(roomList.size() > 0){
                 recyclerView.setAdapter(roomRecyclerViewAdapter);
+            }
+            else {
+                int duration = Toast.LENGTH_LONG;
+                Toast toast = Toast.makeText(RomActivity.this, "Oppret rom får å kunne booke møte", duration);
+                toast.show();
             }
 
         }
@@ -263,7 +267,6 @@ public class RomActivity extends AppCompatActivity {
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }
@@ -308,7 +311,6 @@ public class RomActivity extends AppCompatActivity {
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }

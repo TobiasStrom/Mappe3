@@ -120,7 +120,6 @@ public class MeetingActivity extends AppCompatActivity {
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }
@@ -181,7 +180,6 @@ public class MeetingActivity extends AppCompatActivity {
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }
@@ -253,7 +251,6 @@ public class MeetingActivity extends AppCompatActivity {
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }
@@ -300,16 +297,12 @@ public class MeetingActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(String ss) {
-            Log.e(TAG, "onPostExecute: " + selectedBuilding.toString() );
             houseOpening = selectedBuilding.getOpening().getHours();
             houseClosing = selectedBuilding.getClosing().getHours();
-            Log.e(TAG, "onCreate: "+ houseOpening + "   " + houseClosing );
             buildList();
         }
     }
     public void buildList() {
-        Log.e(TAG, "buildList: Bygd på nytt" );
-        Log.e(TAG, "buildList: " + calendar.getTime() );
         meetingList.clear();
         for(int i = houseOpening; i < houseClosing; i++){
             Meeting newMeeting = new Meeting();

@@ -294,7 +294,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(building == null){
                     intent.putExtra("id", newBuilding.getId());
                     intent.putExtra("floorsBuilding", newBuilding.getFloors());
-                    Log.e(TAG, "onClick: kommer den hit" + newBuilding.getId() );
                 }else {
                     intent.putExtra("id", building.getId());
                     intent.putExtra("floorsBuilding", building.getFloors());
@@ -325,7 +324,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
+
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }
@@ -381,7 +380,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }
@@ -429,7 +427,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         @Override
         protected void onPostExecute(String ss) {
-            Log.e(TAG, "onPostExecute: " + selectedBuilding.toString() );
             showPopup(selectedBuilding);
         }
 
@@ -454,7 +451,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }
