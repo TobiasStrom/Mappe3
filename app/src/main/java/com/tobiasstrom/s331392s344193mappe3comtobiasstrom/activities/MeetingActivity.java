@@ -52,7 +52,8 @@ public class MeetingActivity extends AppCompatActivity {
     private TextView txtDate;
     public Calendar calendar;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-    private SimpleDateFormat dateFormatDate = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+    private SimpleDateFormat dateFormatUt = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat dateFormatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private String date;
     public Building selectedBuilding = new Building();
     private List<Meeting> dayMeeting = new ArrayList<>();
@@ -74,8 +75,8 @@ public class MeetingActivity extends AppCompatActivity {
             idHouse = bundle.getString("idHouse");
         }
         Log.e(TAG, "onCreate: "+ idRoom );
-
-        String url = "http://student.cs.hioa.no/~s344193/AppApi/getReservasjon.php?idRom=" + idRoom;
+        String ut = dateFormatUt.format(calendar.getTime());
+        String url = "http://student.cs.hioa.no/~s344193/AppApi/getReservasjon.php?idRom=" + idRoom+"&day=" + ut;
         String urlHus = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?idHus="+ idHouse;
         Log.e(TAG, "onCreate: "+ url);
         Log.e(TAG, "onCreate: " + urlHus);
@@ -83,8 +84,6 @@ public class MeetingActivity extends AppCompatActivity {
         task.execute(new String[]{url});
         getBuilding taskBuilding = new getBuilding();
         taskBuilding.execute(new String[]{urlHus});
-
-
 
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,19 +97,6 @@ public class MeetingActivity extends AppCompatActivity {
                 lastDay();
             }
         });
-
-        /*
-
-
-         */
-
-
-
-
-
-
-
-
 
     }
     public class getMeeting extends AsyncTask<String, Void,String> {
@@ -152,6 +138,7 @@ public class MeetingActivity extends AppCompatActivity {
                             meeting.setIdRoom(idRoom);
                             meeting.setStart(startTime);
                             meeting.setEnd(endTime);
+                            meeting.setSelected(true);
                             selectedMeetings.add(meeting);
                         }
                         return retur;
@@ -217,6 +204,12 @@ public class MeetingActivity extends AppCompatActivity {
         calendar.add(Calendar.DATE, 1);
         date = dateFormat.format(calendar.getTime());
         txtDate.setText(date);
+        String ut = dateFormatUt.format(calendar.getTime());
+        String url = "http://student.cs.hioa.no/~s344193/AppApi/getReservasjon.php?idRom=" + idRoom+"&day=" + ut;
+        Log.e(TAG, "onCreate: "+ url);
+        getMeeting task = new getMeeting();
+        task.execute(new String[]{url});
+        selectedMeetings.toString();
         buildList();
 
     }
@@ -225,6 +218,11 @@ public class MeetingActivity extends AppCompatActivity {
         calendar.add(Calendar.DATE, -1);
         date = dateFormat.format(calendar.getTime());
         txtDate.setText(date);
+        String ut = dateFormatUt.format(calendar.getTime());
+        String url = "http://student.cs.hioa.no/~s344193/AppApi/getReservasjon.php?idRom=" +idRoom+"&day=" + ut;
+        Log.e(TAG, "onCreate: "+ url);
+        getMeeting task = new getMeeting();
+        task.execute(new String[]{url});
         buildList();
     }
     public void populateRV(List<Meeting> listMeeting){
@@ -235,6 +233,7 @@ public class MeetingActivity extends AppCompatActivity {
         if (listMeeting.size() > 0) {
             recyclerView.setAdapter(recyclerViewAdapter);
         }
+        recyclerViewAdapter.notifyDataSetChanged();
     }
 
     public class getBuilding extends AsyncTask<String, Void,String> {
@@ -312,10 +311,13 @@ public class MeetingActivity extends AppCompatActivity {
         }
 
     }
+
+
     public void buildList() {
+        Log.e(TAG, "buildList: Bygd på nytt" );
+        Log.e(TAG, "buildList: " + calendar.getTime() );
         meetingList.clear();
         int teller = 0;
-
         for(int i = houseOpening; i < houseClosing; i++){
             Meeting newMeeting = new Meeting();
             newMeeting.setIdRoom(idRoom);
@@ -333,7 +335,7 @@ public class MeetingActivity extends AppCompatActivity {
             newMeeting.setEnd(end);
             if(selectedMeetings.size()>0){
                 for (Meeting meeting : selectedMeetings){
-                    if (newMeeting.getStart().compareTo(meeting.getStart()) == 0 && idRoom == newMeeting.getIdRoom()){
+                    if (newMeeting.getStart().compareTo(meeting.getStart()) == 0/* && idRoom == newMeeting.getIdRoom()*/){
                         newMeeting = meeting;
                         break;
                     }
@@ -344,5 +346,4 @@ public class MeetingActivity extends AppCompatActivity {
         Log.e(TAG, "buildList: Teller " + teller );
         populateRV(meetingList);
     }
-
 }

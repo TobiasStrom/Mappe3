@@ -143,6 +143,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    public LatLng move(LatLng latLng){
+        LatLng newLatLng = latLng;
+        //newLatLng.
+        return latLng;
+    }
+
     @Override
     public boolean onMarkerClick(Marker marker) {
         Integer clickCount = (Integer) marker.getTag();
@@ -209,7 +215,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         right = false;
                     }
                     int floorInt = Integer.parseInt(floors);
-                    
+
                     int openingInt = Integer.parseInt(opening);
                     int closingInt = Integer.parseInt(closing);
                     if(openingInt >= closingInt){

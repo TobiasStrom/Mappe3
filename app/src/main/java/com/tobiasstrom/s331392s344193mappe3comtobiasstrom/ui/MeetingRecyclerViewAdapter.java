@@ -33,7 +33,7 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
     private Context context;
     private List<Meeting> meetingList;
     private Meeting meeting;
-    private SimpleDateFormat dateFormatDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    private SimpleDateFormat dateFormatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public MeetingRecyclerViewAdapter(Context context, List<Meeting> meetingList) {
         this.context = context;
@@ -95,6 +95,7 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
                         String endEncode = "";
                         String start = dateFormatDate.format(meeting.getStart());
                         String end = dateFormatDate.format(meeting.getEnd());
+                        Log.e(TAG, "onClick: " + start + " " + end );
                         try {
                             startEncode = URLEncoder.encode(start, "UTF-8");
                         } catch (UnsupportedEncodingException e) {
@@ -105,14 +106,13 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
+                        Log.e(TAG, "onClick: " + startEncode + " - " + endEncode );
                         String url = "http://student.cs.hioa.no/~s344193/AppApi/addReservasjon.php?idRom="+meeting.getIdRoom()+"&startDato="+startEncode+"&sluttDato="+endEncode;
                         url.replace(" ", "20%");
                         Log.e(TAG, "onClick: " + url );
                         addMeeting task = new addMeeting();
                         task.execute(new String[]{url});
                     }
-
-
                 }
             });
         }
