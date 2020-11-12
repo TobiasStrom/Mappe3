@@ -5,6 +5,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.app.Dialog;
 import android.os.AsyncTask;
@@ -18,7 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.R;
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.model.Building;
@@ -43,6 +44,9 @@ public class RomActivity extends AppCompatActivity {
     private String idBuilding;
     private int floorsBuilding;
     private Room room;
+    private Toolbar myToolbar;
+    private String roomName;
+    private String buildingName;
     private List<Room> roomList = new ArrayList<>();
     private RoomRecyclerViewAdapter roomRecyclerViewAdapter;
     private Dialog myDialog;
@@ -55,6 +59,8 @@ public class RomActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
             idBuilding = bundle.getString("id");
+            buildingName = bundle.getString("buildingName");
+
         }
         String url = "http://student.cs.hioa.no/~s344193/AppApi/getRom.php?idHus=" + idBuilding;
         Log.e(TAG, "onCreate: " + url );
@@ -62,25 +68,17 @@ public class RomActivity extends AppCompatActivity {
         task.execute(new String[]{url});
 
         //put on toolbar
-        Toolbar myToolbar = findViewById(R.id.toolbar);
-        myToolbar.setTitle("Hus id: "+ idBuilding);
+        myToolbar = findViewById(R.id.toolbar);
+        myToolbar.setTitle(buildingName);
+        myToolbar.setTitleTextColor(getResources().getColor(R.color.white));
         myToolbar.inflateMenu(R.menu.toolbar_menu);
-        setActionBar(myToolbar);
+        setSupportActionBar(myToolbar);
 
         String urlHus = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?idHus="+ idBuilding;
         Log.e(TAG, "onCreate: " + urlHus);
         getBuilding taskBuilding = new getBuilding();
         taskBuilding.execute(new String[]{urlHus});
 
-        /*addRoom = findViewById(R.id.addRoom);
-        addRoom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showPopup(null);
-                Log.e(TAG, "onClick: hei " );
-
-            }
-        });*/
     }
 
     @Override
@@ -91,12 +89,9 @@ public class RomActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menuAddRom) {
-            showPopup(null);
-            return true;
-        }
-        return false;
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        showPopup(null);
+        return super.onOptionsItemSelected(item);
     }
 
     public class getRoom extends AsyncTask<String, Void,String> {

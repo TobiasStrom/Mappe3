@@ -78,6 +78,7 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
                     Intent intent = new Intent(context, MeetingActivity.class);
                     intent.putExtra("id", room.getId());
                     intent.putExtra("idHouse", room.getIdHouse());
+                    intent.putExtra("roomName", room.getRoomNr());
                     Log.e(TAG, "onClick: " + room.getId() );
                     context.startActivity(intent);
                 }

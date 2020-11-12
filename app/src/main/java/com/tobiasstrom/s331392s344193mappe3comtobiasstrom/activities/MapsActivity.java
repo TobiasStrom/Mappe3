@@ -296,6 +296,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     intent.putExtra("floorsBuilding", newBuilding.getFloors());
                 }else {
                     intent.putExtra("id", building.getId());
+                    intent.putExtra("buildingName", building.getTitle());
                     intent.putExtra("floorsBuilding", building.getFloors());
                 }
                 MapsActivity.this.startActivity(intent);

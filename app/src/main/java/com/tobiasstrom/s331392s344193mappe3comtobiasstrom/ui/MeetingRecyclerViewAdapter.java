@@ -54,7 +54,6 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
         Meeting meeting = meetingList.get(position);
-        Log.e(TAG, "Du ser på møte på plass: "  + position + " som er: " + meeting.isSelected());
         if (meeting.isSelected()) {
             holder.txtStartTime.setTextColor(context.getColor(R.color.red));
             holder.txtEndTime.setTextColor(context.getColor(R.color.red));

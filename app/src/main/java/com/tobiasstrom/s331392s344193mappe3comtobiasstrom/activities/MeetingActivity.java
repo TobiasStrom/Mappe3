@@ -3,6 +3,8 @@ package com.tobiasstrom.s331392s344193mappe3comtobiasstrom.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.app.Dialog;
 import android.os.AsyncTask;
@@ -11,8 +13,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toolbar;
 
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.R;
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.model.Building;
@@ -47,14 +49,15 @@ public class MeetingActivity extends AppCompatActivity {
     private int houseClosing;
     private List<Meeting> meetingList = new ArrayList<>();
     private MeetingRecyclerViewAdapter recyclerViewAdapter;
-    private Button btnLast;
-    private Button btnNext;
+    private ImageButton btnLast;
+    private ImageButton btnNext;
     private TextView txtDate;
     public Calendar calendar;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private SimpleDateFormat dateFormatUt = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat dateFormatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private String date;
+    private String roomName;
     public Building selectedBuilding = new Building();
     private List<Meeting> dayMeeting = new ArrayList<>();
 
@@ -73,6 +76,7 @@ public class MeetingActivity extends AppCompatActivity {
         if(bundle != null){
             idRoom = bundle.getString("id");
             idHouse = bundle.getString("idHouse");
+            roomName = bundle.getString("roomName");
         }
         String ut = dateFormatUt.format(calendar.getTime());
         String url = "http://student.cs.hioa.no/~s344193/AppApi/getReservasjon.php?idRom=" + idRoom+"&day=" + ut;
@@ -101,8 +105,9 @@ public class MeetingActivity extends AppCompatActivity {
 
         //put on toolbar
         Toolbar myToolbar = findViewById(R.id.toolbar2);
-        myToolbar.setTitle("Rom id: "+idRoom);
-        setActionBar(myToolbar);
+        myToolbar.setTitle("RomNr: " + roomName);
+        myToolbar.setTitleTextColor(getResources().getColor(R.color.white));
+        setSupportActionBar(myToolbar);
 
     }
 
