@@ -9,5 +9,8 @@
     <string name="description">Beskrivelse</string>
     <string name="meeting_end">Slutt tid</string>
     <string name="start_time">Start tid</string>
+    <string name="addRom">Legg til rom</string>
     <string name="add">Legg til</string>
+    <string name="next">neste</string>
+    <string name="previous">forrige</string>
 </resources>

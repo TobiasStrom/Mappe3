@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.R;
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.model.Building;
@@ -99,7 +100,14 @@ public class MeetingActivity extends AppCompatActivity {
             }
         });
 
+        //put on toolbar
+        Toolbar myToolbar = findViewById(R.id.toolbar2);
+        myToolbar.setTitle("Rom id: "+idRoom);
+        setActionBar(myToolbar);
+
     }
+
+
     public class getMeeting extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {

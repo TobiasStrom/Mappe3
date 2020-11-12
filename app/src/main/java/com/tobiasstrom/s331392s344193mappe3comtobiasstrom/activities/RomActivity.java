@@ -39,23 +39,16 @@ import java.util.List;
 
 public class RomActivity extends AppCompatActivity {
     private static final String TAG = "RomActivity";
-    private ActionBar toolbar;
-    private TextView txtBuildingTitle;
     private String idBuilding;
     private Room room;
     private List<Room> roomList = new ArrayList<>();
     private RoomRecyclerViewAdapter roomRecyclerViewAdapter;
     private Dialog myDialog;
-    private Button addRoom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rom);
-        toolbar = getSupportActionBar();
-        //toolbar.setTitle("Hei");
-
-
 
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
@@ -67,27 +60,28 @@ public class RomActivity extends AppCompatActivity {
         getRoom task= new getRoom();
         task.execute(new String[]{url});
 
-        addRoom = findViewById(R.id.addRoom);
-        addRoom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showPopup(null);
-                Log.e(TAG, "onClick: hei " );
-            }
-        });
+        //put on toolbar
+        Toolbar myToolbar = findViewById(R.id.toolbar);
+        myToolbar.setTitle("Hus id: "+ idBuilding);
+        myToolbar.inflateMenu(R.menu.toolbar_menu);
+        setActionBar(myToolbar);
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.contact_menu, menu);
+        inflater.inflate(R.menu.toolbar_menu, menu);
         return true;
     }
+
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.e(TAG, "onOptionsItemSelected: her" );
-        return  super.onOptionsItemSelected(item);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menuAddRom) {
+            showPopup(null);
+            return true;
+        }
+        return false;
     }
 
     public class getRoom extends AsyncTask<String, Void,String> {
@@ -159,6 +153,7 @@ public class RomActivity extends AppCompatActivity {
 
         }
     }
+
     public void showPopup(Room room){
         myDialog = new Dialog(this);
 
@@ -208,6 +203,7 @@ public class RomActivity extends AppCompatActivity {
             myDialog.show();
         }
     }
+
     public class addRoom extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {
