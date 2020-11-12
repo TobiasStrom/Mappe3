@@ -13,6 +13,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:background="#E8E6E6"
+        android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,76 +23,40 @@
             android:id="@+id/txtFloorNr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            app:layout_constraintBaseline_toBaselineOf="@+id/textView13"
-            app:layout_constraintStart_toEndOf="@+id/textView13"
-            tools:text="5" />
-
-        <TextView
-            android:id="@+id/textView16"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            android:text="@string/description"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView11" />
+            android:padding="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Etasje: 5" />
 
         <TextView
             android:id="@+id/txtCapasity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBaseline_toBaselineOf="@+id/textView11"
-            app:layout_constraintStart_toStartOf="@+id/txtRoomNr"
-            tools:text="12" />
+            android:padding="8dp"
+            app:layout_constraintEnd_toStartOf="@+id/txtFloorNr"
+            app:layout_constraintStart_toEndOf="@+id/txtRoomNr"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Kapasitet: 12" />
 
         <TextView
             android:id="@+id/txtRoomDescription"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintBaseline_toBaselineOf="@+id/textView16"
-            app:layout_constraintStart_toStartOf="@+id/txtCapasity"
-            tools:text="Dette er ett skolebygg" />
-
-        <TextView
-            android:id="@+id/textView13"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:text="@string/floor"
-            app:layout_constraintBaseline_toBaselineOf="@+id/txtCapasity"
-            app:layout_constraintStart_toEndOf="@+id/txtCapasity" />
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtRoomNr"
+            tools:text="Beskrivelse: Dette er ett skolebygg" />
 
         <TextView
             android:id="@+id/txtRoomNr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            app:layout_constraintBaseline_toBaselineOf="@+id/textView10"
-            app:layout_constraintStart_toEndOf="@+id/textView10"
-            tools:text="402" />
-
-        <TextView
-            android:id="@+id/textView11"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/capasaty"
+            android:padding="8dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView10" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Romnummer: 12" />
 
-        <TextView
-            android:id="@+id/textView10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/roomNr"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

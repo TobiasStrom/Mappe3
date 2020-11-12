@@ -7,8 +7,20 @@
     <string name="capasaty">Kapasitet</string>
     <string name="floor">Etasje</string>
     <string name="description">Beskrivelse</string>
+
+    <!--formated strings som brukes for å skrive ut verdier til rommet -->
+    <string name="roomNrOut">Romnummer: %1$s</string>
+    <string name="capasatyOut">Kapasitet: %1$s</string>
+    <string name="floorOut">Etasje: %1$s</string>
+    <string name="descriptionOut">Beskrivelse: %1$s</string>
+
     <string name="meeting_end">Slutt tid</string>
     <string name="start_time">Start tid</string>
+
+    <!--formated strings som brukes for å skrive ut verdier til møten -->
+    <string name="meeting_startOut">Start tid: %1$s</string>
+    <string name="meeting_endOut">Slutt tid: %1$s</string>
+
     <string name="addRom">Legg til rom</string>
     <string name="add">Legg til</string>
     <string name="next">neste</string>

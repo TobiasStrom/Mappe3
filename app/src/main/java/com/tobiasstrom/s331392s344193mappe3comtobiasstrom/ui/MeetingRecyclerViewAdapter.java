@@ -64,10 +64,11 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
 
         }
 
-
-
-        holder.txtStartTime.setText(dateFormat.format(meeting.getStart()));
-        holder.txtEndTime.setText(dateFormat.format(meeting.getEnd()));
+        Context context = holder.itemView.getContext();
+        holder.txtStartTime.setText(context.getString(R.string.meeting_startOut, dateFormat.format(meeting.getStart())));
+        holder.txtEndTime.setText(context.getString(R.string.meeting_endOut, dateFormat.format(meeting.getEnd())));
+        //holder.txtStartTime.setText(dateFormat.format(meeting.getStart()));
+        //holder.txtEndTime.setText(dateFormat.format(meeting.getEnd()));
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.tobiasstrom.s331392s344193mappe3comtobiasstrom.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,10 +43,11 @@ public class RoomRecyclerViewAdapter extends RecyclerView.Adapter<RoomRecyclerVi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Room room = roomList.get(position);
-        holder.txtRoomNr.setText(room.getRoomNr());
-        holder.txtCapasity.setText(room.getCapacity());
-        holder.txtFloorNr.setText(room.getFloorNr());
-        holder.txtRoomDescription.setText(room.getDescription());
+        Context context = holder.itemView.getContext();
+        holder.txtRoomNr.setText(context.getString(R.string.roomNrOut, room.getRoomNr()));
+        holder.txtCapasity.setText(context.getString(R.string.capasatyOut, room.getCapacity()));
+        holder.txtFloorNr.setText(context.getString(R.string.floorOut, room.getFloorNr()));
+        holder.txtRoomDescription.setText(context.getString(R.string.descriptionOut, room.getDescription()));
     }
     @Override
     public int getItemCount() {

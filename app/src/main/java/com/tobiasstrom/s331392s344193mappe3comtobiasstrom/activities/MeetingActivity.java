@@ -47,8 +47,6 @@ public class MeetingActivity extends AppCompatActivity {
     private int houseClosing;
     private List<Meeting> meetingList = new ArrayList<>();
     private MeetingRecyclerViewAdapter recyclerViewAdapter;
-    private Button addMeetingRoom;
-    private Dialog myDialog;
     private Button btnLast;
     private Button btnNext;
     private TextView txtDate;
