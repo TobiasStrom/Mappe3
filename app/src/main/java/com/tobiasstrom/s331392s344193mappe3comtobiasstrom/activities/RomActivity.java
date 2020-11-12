@@ -72,7 +72,7 @@ public class RomActivity extends AppCompatActivity {
         getBuilding taskBuilding = new getBuilding();
         taskBuilding.execute(new String[]{urlHus});
 
-        addRoom = findViewById(R.id.addRoom);
+        /*addRoom = findViewById(R.id.addRoom);
         addRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,7 +80,7 @@ public class RomActivity extends AppCompatActivity {
                 Log.e(TAG, "onClick: hei " );
 
             }
-        });
+        });*/
     }
 
     @Override
