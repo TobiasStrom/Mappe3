@@ -54,11 +54,18 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
 
         Meeting meeting = meetingList.get(position);
-        Log.e(TAG, "onBindViewHolder: " + meeting.isSelected() );
-        if(meeting.isSelected()){
-            holder.txtStartTime.setTextColor(context.getResources().getColor(R.color.red));;
-            holder.txtEndTime.setTextColor(context.getResources().getColor(R.color.red));
+        Log.e(TAG, "Du ser på møte på plass: "  + position + " som er: " + meeting.isSelected());
+        if (meeting.isSelected()) {
+            holder.txtStartTime.setTextColor(context.getColor(R.color.red));
+            holder.txtEndTime.setTextColor(context.getColor(R.color.red));
+        } else {
+            holder.txtStartTime.setTextColor(context.getColor(R.color.defaultSecondText));
+            holder.txtEndTime.setTextColor(context.getColor(R.color.defaultSecondText));
+
         }
+
+
+
         holder.txtStartTime.setText(dateFormat.format(meeting.getStart()));
         holder.txtEndTime.setText(dateFormat.format(meeting.getEnd()));
     }
@@ -84,13 +91,18 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
                 public void onClick(View view) {
                     int position = getAdapterPosition();
                     meeting = meetingList.get(position);
-                    if(meeting.isSelected()){
+
+                    if (meeting.isSelected()){
                         CharSequence text = "Du kan ikke velge et møte som allerede er valgt";
                         int duration = Toast.LENGTH_SHORT;
 
                         Toast toast = Toast.makeText(context, text, duration);
                         toast.show();
-                    }else{
+                    } else {
+                        //put on selected style; put text color til red
+                        txtStartTime.setTextColor(view.getResources().getColor(R.color.red));
+                        txtEndTime.setTextColor(view.getResources().getColor(R.color.red));
+
                         String startEncode = "";
                         String endEncode = "";
                         String start = dateFormatDate.format(meeting.getStart());

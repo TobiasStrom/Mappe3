@@ -30,6 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -157,7 +158,8 @@ public class MeetingActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String ss) {
             Log.e(TAG, "onPostExecute: Har hentet ut room ");
-            populateRV(meetingList);
+            //populateRV(meetingList);
+            buildList();
         }
     }
 
@@ -209,8 +211,7 @@ public class MeetingActivity extends AppCompatActivity {
         Log.e(TAG, "onCreate: "+ url);
         getMeeting task = new getMeeting();
         task.execute(new String[]{url});
-        selectedMeetings.toString();
-        buildList();
+        //buildList();
 
     }
     public void lastDay(){
@@ -223,7 +224,7 @@ public class MeetingActivity extends AppCompatActivity {
         Log.e(TAG, "onCreate: "+ url);
         getMeeting task = new getMeeting();
         task.execute(new String[]{url});
-        buildList();
+        ///buildList();
     }
     public void populateRV(List<Meeting> listMeeting){
         RecyclerView recyclerView = findViewById(R.id.rvMeeting);
@@ -314,8 +315,6 @@ public class MeetingActivity extends AppCompatActivity {
 
 
     public void buildList() {
-        Log.e(TAG, "buildList: Bygd på nytt" );
-        Log.e(TAG, "buildList: " + calendar.getTime() );
         meetingList.clear();
         int teller = 0;
         for(int i = houseOpening; i < houseClosing; i++){
@@ -325,12 +324,10 @@ public class MeetingActivity extends AppCompatActivity {
             newCaledar.set(Calendar.HOUR_OF_DAY,i);
             newCaledar.set(Calendar.MINUTE, 0);
             newCaledar.set(Calendar.SECOND,0);
-            Log.e(TAG, "buildList: " + newCaledar.getTime() );
             String start = dateFormatDate.format(newCaledar.getTime());
             newMeeting.setStart(start);
             int to = i + 1;
             newCaledar.set(Calendar.HOUR_OF_DAY,to);
-            Log.e(TAG, "buildList: " + newCaledar.getTime() );
             String end = dateFormatDate.format(newCaledar.getTime());
             newMeeting.setEnd(end);
             if(selectedMeetings.size()>0){
@@ -343,7 +340,7 @@ public class MeetingActivity extends AppCompatActivity {
             }
             meetingList.add(newMeeting);
         }
-        Log.e(TAG, "buildList: Teller " + teller );
+        Log.d(TAG, "buildList: Hei, listen med møter legges inn");
         populateRV(meetingList);
     }
 }
