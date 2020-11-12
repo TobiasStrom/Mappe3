@@ -1,6 +1,7 @@
 package com.tobiasstrom.s331392s344193mappe3comtobiasstrom.ui;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,7 +53,6 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
-
         Meeting meeting = meetingList.get(position);
         Log.e(TAG, "Du ser på møte på plass: "  + position + " som er: " + meeting.isSelected());
         if (meeting.isSelected()) {
@@ -119,7 +119,6 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
-                        Log.e(TAG, "onClick: " + startEncode + " - " + endEncode );
                         String url = "http://student.cs.hioa.no/~s344193/AppApi/addReservasjon.php?idRom="+meeting.getIdRoom()+"&startDato="+startEncode+"&sluttDato="+endEncode;
                         url.replace(" ", "20%");
                         Log.e(TAG, "onClick: " + url );

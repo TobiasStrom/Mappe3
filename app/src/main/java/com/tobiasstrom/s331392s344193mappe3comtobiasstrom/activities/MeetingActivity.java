@@ -74,14 +74,15 @@ public class MeetingActivity extends AppCompatActivity {
             idRoom = bundle.getString("id");
             idHouse = bundle.getString("idHouse");
         }
-        Log.e(TAG, "onCreate: "+ idRoom );
         String ut = dateFormatUt.format(calendar.getTime());
         String url = "http://student.cs.hioa.no/~s344193/AppApi/getReservasjon.php?idRom=" + idRoom+"&day=" + ut;
-        String urlHus = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?idHus="+ idHouse;
+
         Log.e(TAG, "onCreate: "+ url);
-        Log.e(TAG, "onCreate: " + urlHus);
+
         getMeeting task = new getMeeting();
         task.execute(new String[]{url});
+        String urlHus = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?idHus="+ idHouse;
+        Log.e(TAG, "onCreate: " + urlHus);
         getBuilding taskBuilding = new getBuilding();
         taskBuilding.execute(new String[]{urlHus});
 
@@ -109,7 +110,6 @@ public class MeetingActivity extends AppCompatActivity {
     public class getMeeting extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {
-            selectedMeetings.clear();
             String retur = "";
             String s = "";
             String output = "";
@@ -127,7 +127,6 @@ public class MeetingActivity extends AppCompatActivity {
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }
@@ -189,7 +188,6 @@ public class MeetingActivity extends AppCompatActivity {
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }
@@ -231,6 +229,7 @@ public class MeetingActivity extends AppCompatActivity {
         getMeeting task = new getMeeting();
         task.execute(new String[]{url});
         ///buildList();
+
     }
     public void populateRV(List<Meeting> listMeeting){
         RecyclerView recyclerView = findViewById(R.id.rvMeeting);
@@ -263,7 +262,6 @@ public class MeetingActivity extends AppCompatActivity {
                     }
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (conn.getInputStream())));
-                    System.out.println("Output from Server .... \n");
                     while ((s = br.readLine()) != null) {
                         output = output + s;
                     }
@@ -310,19 +308,13 @@ public class MeetingActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(String ss) {
-            Log.e(TAG, "onPostExecute: " + selectedBuilding.toString() );
             houseOpening = selectedBuilding.getOpening().getHours();
             houseClosing = selectedBuilding.getClosing().getHours();
-            Log.e(TAG, "onCreate: "+ houseOpening + "   " + houseClosing );
             buildList();
         }
-
     }
-
-
     public void buildList() {
         meetingList.clear();
-        int teller = 0;
         for(int i = houseOpening; i < houseClosing; i++){
             Meeting newMeeting = new Meeting();
             newMeeting.setIdRoom(idRoom);
@@ -338,7 +330,7 @@ public class MeetingActivity extends AppCompatActivity {
             newMeeting.setEnd(end);
             if(selectedMeetings.size()>0){
                 for (Meeting meeting : selectedMeetings){
-                    if (newMeeting.getStart().compareTo(meeting.getStart()) == 0/* && idRoom == newMeeting.getIdRoom()*/){
+                    if (newMeeting.getStart().compareTo(meeting.getStart()) == 0){
                         newMeeting = meeting;
                         break;
                     }
@@ -346,7 +338,6 @@ public class MeetingActivity extends AppCompatActivity {
             }
             meetingList.add(newMeeting);
         }
-        Log.d(TAG, "buildList: Hei, listen med møter legges inn");
         populateRV(meetingList);
     }
 }
