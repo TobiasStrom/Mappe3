@@ -74,14 +74,15 @@ public class MeetingActivity extends AppCompatActivity {
             idRoom = bundle.getString("id");
             idHouse = bundle.getString("idHouse");
         }
-        Log.e(TAG, "onCreate: "+ idRoom );
         String ut = dateFormatUt.format(calendar.getTime());
         String url = "http://student.cs.hioa.no/~s344193/AppApi/getReservasjon.php?idRom=" + idRoom+"&day=" + ut;
-        String urlHus = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?idHus="+ idHouse;
+
         Log.e(TAG, "onCreate: "+ url);
-        Log.e(TAG, "onCreate: " + urlHus);
+
         getMeeting task = new getMeeting();
         task.execute(new String[]{url});
+        String urlHus = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?idHus="+ idHouse;
+        Log.e(TAG, "onCreate: " + urlHus);
         getBuilding taskBuilding = new getBuilding();
         taskBuilding.execute(new String[]{urlHus});
 
@@ -102,7 +103,6 @@ public class MeetingActivity extends AppCompatActivity {
     public class getMeeting extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {
-            selectedMeetings.clear();
             String retur = "";
             String s = "";
             String output = "";
@@ -157,7 +157,7 @@ public class MeetingActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String ss) {
             Log.e(TAG, "onPostExecute: Har hentet ut room ");
-            populateRV(meetingList);
+            buildList();
         }
     }
 
@@ -209,9 +209,6 @@ public class MeetingActivity extends AppCompatActivity {
         Log.e(TAG, "onCreate: "+ url);
         getMeeting task = new getMeeting();
         task.execute(new String[]{url});
-        selectedMeetings.toString();
-        buildList();
-
     }
     public void lastDay(){
         selectedMeetings.clear();
@@ -223,7 +220,7 @@ public class MeetingActivity extends AppCompatActivity {
         Log.e(TAG, "onCreate: "+ url);
         getMeeting task = new getMeeting();
         task.execute(new String[]{url});
-        buildList();
+
     }
     public void populateRV(List<Meeting> listMeeting){
         RecyclerView recyclerView = findViewById(R.id.rvMeeting);
@@ -309,15 +306,11 @@ public class MeetingActivity extends AppCompatActivity {
             Log.e(TAG, "onCreate: "+ houseOpening + "   " + houseClosing );
             buildList();
         }
-
     }
-
-
     public void buildList() {
         Log.e(TAG, "buildList: Bygd på nytt" );
         Log.e(TAG, "buildList: " + calendar.getTime() );
         meetingList.clear();
-        int teller = 0;
         for(int i = houseOpening; i < houseClosing; i++){
             Meeting newMeeting = new Meeting();
             newMeeting.setIdRoom(idRoom);
@@ -325,17 +318,15 @@ public class MeetingActivity extends AppCompatActivity {
             newCaledar.set(Calendar.HOUR_OF_DAY,i);
             newCaledar.set(Calendar.MINUTE, 0);
             newCaledar.set(Calendar.SECOND,0);
-            Log.e(TAG, "buildList: " + newCaledar.getTime() );
             String start = dateFormatDate.format(newCaledar.getTime());
             newMeeting.setStart(start);
             int to = i + 1;
             newCaledar.set(Calendar.HOUR_OF_DAY,to);
-            Log.e(TAG, "buildList: " + newCaledar.getTime() );
             String end = dateFormatDate.format(newCaledar.getTime());
             newMeeting.setEnd(end);
             if(selectedMeetings.size()>0){
                 for (Meeting meeting : selectedMeetings){
-                    if (newMeeting.getStart().compareTo(meeting.getStart()) == 0/* && idRoom == newMeeting.getIdRoom()*/){
+                    if (newMeeting.getStart().compareTo(meeting.getStart()) == 0){
                         newMeeting = meeting;
                         break;
                     }
@@ -343,7 +334,6 @@ public class MeetingActivity extends AppCompatActivity {
             }
             meetingList.add(newMeeting);
         }
-        Log.e(TAG, "buildList: Teller " + teller );
         populateRV(meetingList);
     }
 }

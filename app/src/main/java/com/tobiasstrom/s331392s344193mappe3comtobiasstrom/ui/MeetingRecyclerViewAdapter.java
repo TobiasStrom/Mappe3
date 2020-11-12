@@ -1,6 +1,7 @@
 package com.tobiasstrom.s331392s344193mappe3comtobiasstrom.ui;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,15 +53,18 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
-
         Meeting meeting = meetingList.get(position);
-        Log.e(TAG, "onBindViewHolder: " + meeting.isSelected() );
+        ColorStateList oldColors =  holder.txtStartTime.getTextColors();
         if(meeting.isSelected()){
             holder.txtStartTime.setTextColor(context.getResources().getColor(R.color.red));;
             holder.txtEndTime.setTextColor(context.getResources().getColor(R.color.red));
+        }else{
+            holder.txtStartTime.setTextColor(context.getResources().getColor(R.color.black));;
+            holder.txtEndTime.setTextColor(context.getResources().getColor(R.color.black));
         }
         holder.txtStartTime.setText(dateFormat.format(meeting.getStart()));
         holder.txtEndTime.setText(dateFormat.format(meeting.getEnd()));
+
     }
 
     @Override
@@ -106,7 +110,6 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
-                        Log.e(TAG, "onClick: " + startEncode + " - " + endEncode );
                         String url = "http://student.cs.hioa.no/~s344193/AppApi/addReservasjon.php?idRom="+meeting.getIdRoom()+"&startDato="+startEncode+"&sluttDato="+endEncode;
                         url.replace(" ", "20%");
                         Log.e(TAG, "onClick: " + url );

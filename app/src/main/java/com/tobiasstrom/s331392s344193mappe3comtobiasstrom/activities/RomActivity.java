@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.tobiasstrom.s331392s344193mappe3comtobiasstrom.R;
@@ -42,6 +43,7 @@ public class RomActivity extends AppCompatActivity {
     private ActionBar toolbar;
     private TextView txtBuildingTitle;
     private String idBuilding;
+    private int floorsBuilding;
     private Room room;
     private List<Room> roomList = new ArrayList<>();
     private RoomRecyclerViewAdapter roomRecyclerViewAdapter;
@@ -60,12 +62,16 @@ public class RomActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
             idBuilding = bundle.getString("id");
-            Log.e(TAG, "onCreate: " + idBuilding );
         }
         String url = "http://student.cs.hioa.no/~s344193/AppApi/getRom.php?idHus=" + idBuilding;
         Log.e(TAG, "onCreate: " + url );
         getRoom task= new getRoom();
         task.execute(new String[]{url});
+
+        String urlHus = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?idHus="+ idBuilding;
+        Log.e(TAG, "onCreate: " + urlHus);
+        getBuilding taskBuilding = new getBuilding();
+        taskBuilding.execute(new String[]{urlHus});
 
         addRoom = findViewById(R.id.addRoom);
         addRoom.setOnClickListener(new View.OnClickListener() {
@@ -73,9 +79,9 @@ public class RomActivity extends AppCompatActivity {
             public void onClick(View view) {
                 showPopup(null);
                 Log.e(TAG, "onClick: hei " );
+
             }
         });
-
     }
 
     @Override
@@ -93,6 +99,7 @@ public class RomActivity extends AppCompatActivity {
     public class getRoom extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {
+
             String retur = "";
             String s = "";
             String output = "";
@@ -170,10 +177,10 @@ public class RomActivity extends AppCompatActivity {
         Button btnAddRoom = myDialog.findViewById(R.id.btnAddRoom);
 
         if(room == null){
-
             btnAddRoom.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    String text = "Her er det noe feil i informasjonen";
                     String roomNr = txtRoomNr.getText().toString();
                     String roomCapasity = txtRoomCapasity.getText().toString();
                     String roomFloors = txtRomFloors.getText().toString();
@@ -181,19 +188,43 @@ public class RomActivity extends AppCompatActivity {
                     String roomNumberEncode = "";
                     String roomDescriptionEncode = "";
                     boolean right = true;
+                    if(txtRomFloors.getText().toString().isEmpty() || txtRoomNr.getText().toString().isEmpty() || txtRoomDescription.getText().toString().isEmpty() || txtRoomCapasity.getText().toString().isEmpty()){
+                        right = false;
+                        text += "\nDu må fylle alle feltene";
+                    }else {
+                        try {
+                            int txtFloors = Integer.parseInt(roomFloors);
+                            if(txtFloors>floorsBuilding){
+                                right = false;
+                                text += "\nFor mange etasjer maks er " + floorsBuilding;
+                            }
+                        }catch (NumberFormatException e){
+                            right = false;
+                        }
+                        try {
+                            roomNumberEncode = URLEncoder.encode(roomNr, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                            right = false;
+                        }
+                        try {
+                            roomDescriptionEncode = URLEncoder.encode(description, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                            right = false;
+                        }
+                        for(Room room1 : roomList){
+                            if (room1.getRoomNr().equals(roomNr)){
+                                right = false;
+                                text += "\nRomnummeret finnes fra før";
+                                break;
+                            }
+                        }
+                        if(!description.matches("[a-zøæåA-ZÆØÅ_0-9 \\.\\,]+")){
+                            text += "\nBeskrivelse kan bare indeholde tall og bokstaver";
+                        }
+                    }
 
-                    try {
-                        roomNumberEncode = URLEncoder.encode(roomNr, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                        right = false;
-                    }
-                    try {
-                        roomDescriptionEncode = URLEncoder.encode(description, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                        right = false;
-                    }
                     if(right){
                         String url = "http://student.cs.hioa.no/~s344193/AppApi/addRom.php?idHus="+idBuilding+"&beskrivelse="+roomDescriptionEncode+"&nummer="+roomNumberEncode+"&kapasitet="+roomCapasity+"&etasje="+roomFloors;
                         Log.e(TAG, "onClick: " + url );
@@ -202,6 +233,10 @@ public class RomActivity extends AppCompatActivity {
                         task.execute(new String[]{url});
                         myDialog.cancel();
 
+                    }else {
+                        int duration = Toast.LENGTH_SHORT;
+                        Toast toast = Toast.makeText(RomActivity.this, text, duration);
+                        toast.show();
                     }
                 }
             });
@@ -243,6 +278,58 @@ public class RomActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String ss) {
             Log.e(TAG, "onPostExecute: Du har opprettet et rom");
+            String url = "http://student.cs.hioa.no/~s344193/AppApi/getRom.php?idHus=" + idBuilding;
+            Log.e(TAG, "onCreate: " + url );
+            roomList.clear();
+            getRoom task= new getRoom();
+            task.execute(new String[]{url});
+
+        }
+
+    }
+
+    public class getBuilding extends AsyncTask<String, Void,String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            String retur = "";
+            String s = "";
+            String output = "";
+            for (String url : urls) {
+                try {
+                    URL urlen = new URL(urls[0]);
+                    HttpURLConnection conn = (HttpURLConnection)
+                            urlen.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Accept",
+                            "application/json");
+                    if (conn.getResponseCode() != 200) {
+                        throw new RuntimeException("Failed : HTTP error code : "
+                                + conn.getResponseCode());
+                    }
+                    BufferedReader br = new BufferedReader(new InputStreamReader(
+                            (conn.getInputStream())));
+                    System.out.println("Output from Server .... \n");
+                    while ((s = br.readLine()) != null) {
+                        output = output + s;
+                    }
+                    conn.disconnect();
+                    try {
+                        JSONArray building = new JSONArray(output);
+                        JSONObject jsonobject = building.getJSONObject(0);
+                        floorsBuilding = jsonobject.getInt("antallEtasjer");
+                        return retur;
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    return retur;
+                } catch (Exception e) {
+                    return "Noe gikk feil";
+                }
+            }
+            return retur;
+        }
+        @Override
+        protected void onPostExecute(String ss) {
 
         }
 

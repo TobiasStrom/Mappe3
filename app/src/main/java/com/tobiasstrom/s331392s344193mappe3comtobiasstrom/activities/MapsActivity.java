@@ -171,7 +171,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Window window = myDialog.getWindow();
         WindowManager.LayoutParams wpl = window.getAttributes();
 
-        wpl.gravity = Gravity.BOTTOM;
+       // wpl.gravity = Gravity.BOTTOM;
         wpl.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
         window.setAttributes(wpl);
         EditText txtTilte = myDialog.findViewById(R.id.txtTilte);
@@ -192,6 +192,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             openBuilding.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    String text = "Her var det noe feil med inputen";
                     String opening = txtOpening.getText().toString();
                     String closing = txtClosing.getText().toString();
                     String title = txtTilte.getText().toString();
@@ -199,41 +200,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String floors = txtFloors.getText().toString();
                     String titleEncode = "";
                     String descriptionEncode = "";
-                    btnRoom.setEnabled(true);
                     boolean right = true;
+                    if(closing.isEmpty() || opening.isEmpty() || title.isEmpty() || description.isEmpty() || floors.isEmpty()){
+                        right = false;
+                        text += "\nDu må fylle alle feiltene";
+                    }
+                    else {
+                        if(!title.matches("[a-zøæåA-ZÆØÅ0-9_ \\.\\,]+")){
+                            right = false;
+                            text += "\nTittel kan bare indeholde tall og bokstaver";
+                        }
+                        try {
+                            titleEncode = URLEncoder.encode(title, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                            right = false;
+                        }
+                        try {
+                            descriptionEncode = URLEncoder.encode(description, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                            right = false;
+                        }
 
-                    try {
-                        titleEncode = URLEncoder.encode(title, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                        right = false;
-                    }
-                    try {
-                        descriptionEncode = URLEncoder.encode(description, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                        right = false;
-                    }
-                    int floorInt = Integer.parseInt(floors);
-
-                    int openingInt = Integer.parseInt(opening);
-                    int closingInt = Integer.parseInt(closing);
-                    if(openingInt >= closingInt){
-                        right = false;
-                    }
-                    if(openingInt < 0){
-                        right = false;
-                    }
-                    if (openingInt > 23){
-                        right = false;
-                    }
-                    if (closingInt<0){
-                        right = false;
-                    }
-                    if (closingInt > 23) {
-                        right = false;
-                    }
-                    if(txtClosing.getText().toString().isEmpty()){
+                        int openingInt = Integer.parseInt(opening);
+                        int closingInt = Integer.parseInt(closing);
+                        if(openingInt >= closingInt){
+                            right = false;
+                            text += "\nÅping må være før stenging";
+                        }
+                        if(openingInt < 0){
+                            right = false;
+                            text += "\nDu må åpne etter 00:00";
+                        }
+                        if (openingInt > 23){
+                            right = false;
+                            text += "\nDu kan ikke åpningstid etter 23";
+                        }
+                        if (closingInt<0){
+                            right = false;
+                            text += "\nDu må stenge etter 00:00";
+                        }
+                        if (closingInt > 23) {
+                            right = false;
+                            text += "\nDU må stenge før klokken er 23:00";
+                        }
+                        if(!description.matches("[a-zøæåA-ZÆØÅ_0-9 \\.\\,]+")){
+                            right = false;
+                            text += "\nBeskrivelse kan bare indeholde tall og bokstaver";
+                        }
 
                     }
 
@@ -247,11 +262,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         getBuilding task2 = new getBuilding();
                         task2.execute(new String[]{url2});
                         mMap.addMarker(new MarkerOptions().position(newBuilding.getLatLng()).title(newBuilding.getTitle()));
-                        openBuilding.setText("Oppdater");
+                        //openBuilding.setText("Oppdater");
+                        openBuilding.setEnabled(false);
+                        btnRoom.setEnabled(true);
 
                     }else {
-                        CharSequence text = "Her var det noe feil med inputen";
-                        int duration = Toast.LENGTH_SHORT;
+
+                        int duration = Toast.LENGTH_LONG;
 
                         Toast toast = Toast.makeText(MapsActivity.this, text, duration);
                         toast.show();
@@ -266,9 +283,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             txtOpening.setText(building.getOpening().getHours() +"");
             txtClosing.setText(building.getClosing().getHours()+ "");
             txtDescription.setText(building.getDescription());
-            openBuilding.setText("Oppdater");
+            openBuilding.setEnabled(false);
             btnRoom.setEnabled(true);
-
         }
 
         btnRoom.setOnClickListener(new View.OnClickListener() {
@@ -277,9 +293,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Intent intent = new Intent(MapsActivity.this, RomActivity.class);
                 if(building == null){
                     intent.putExtra("id", newBuilding.getId());
+                    intent.putExtra("floorsBuilding", newBuilding.getFloors());
                     Log.e(TAG, "onClick: kommer den hit" + newBuilding.getId() );
                 }else {
                     intent.putExtra("id", building.getId());
+                    intent.putExtra("floorsBuilding", building.getFloors());
                 }
                 MapsActivity.this.startActivity(intent);
             }
