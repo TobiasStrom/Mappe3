@@ -25,4 +25,19 @@
     <string name="add">Legg til</string>
     <string name="next">neste</string>
     <string name="previous">forrige</string>
+    <string name="create">Opprett</string>
+    <string name="no_adress">Det er ingen addresse på dette stedet!</string>
+    <string name="room">Rom</string>
+    <string name="creare">Opprett</string>
+    <string name="somthing_wrong_input">Her var det noe feil med inputen</string>
+    <string name="fill_all_field">Du må fylle alle feiltene</string>
+    <string name="only_number_letter">Tittel kan bare indeholde tall og bokstaver</string>
+    <string name="opening_before">Åping må være før stenging</string>
+    <string name="open_aftere_00">Du må åpne etter 00:00</string>
+    <string name="not_open_after_23">Du kan ikke åpningstid etter 23</string>
+    <string name="close_after_00">Du må stenge etter 00:00</string>
+    <string name="close_before_23">DU må stenge før klokken er 23:00</string>
+    <string name="description_only_letter_and_number">Beskrivelse kan bare indeholde tall og bokstaver</string>
+    <string name="went_wrong">Noe gikk feil</string>
+    <string name="greated_a_building">Du har opprettet en bygning</string>
 </resources>

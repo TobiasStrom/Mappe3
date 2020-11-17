@@ -1,6 +1,7 @@
 package com.tobiasstrom.s331392s344193mappe3comtobiasstrom.ui;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,15 +27,16 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import static com.tobiasstrom.s331392s344193mappe3comtobiasstrom.util.Constants.selectedMeetings;
-
+//Trenger denne klassen får å kunne legge inn den informsjonen som vi trenger i recyclerview
+//På den måten jeg ønsker
 public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecyclerViewAdapter.ViewHolder> {
     private static final String TAG = "MeetingRecyclerViewAdap";
-
+    //opprette de variablene vi trenger
     private Context context;
     private List<Meeting> meetingList;
     private Meeting meeting;
     private SimpleDateFormat dateFormatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
+    //Konstruktør
     public MeetingRecyclerViewAdapter(Context context, List<Meeting> meetingList) {
         this.context = context;
         this.meetingList = meetingList;
@@ -48,13 +50,11 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
 
         return new ViewHolder(view, context);
     }
-
+    //Setter teksten ut i viewene
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
-
         Meeting meeting = meetingList.get(position);
-        Log.e(TAG, "Du ser på møte på plass: "  + position + " som er: " + meeting.isSelected());
         if (meeting.isSelected()) {
             holder.txtStartTime.setTextColor(context.getColor(R.color.red));
             holder.txtEndTime.setTextColor(context.getColor(R.color.red));
@@ -67,15 +67,14 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
         Context context = holder.itemView.getContext();
         holder.txtStartTime.setText(context.getString(R.string.meeting_startOut, dateFormat.format(meeting.getStart())));
         holder.txtEndTime.setText(context.getString(R.string.meeting_endOut, dateFormat.format(meeting.getEnd())));
-        //holder.txtStartTime.setText(dateFormat.format(meeting.getStart()));
-        //holder.txtEndTime.setText(dateFormat.format(meeting.getEnd()));
     }
-
+    //trenger å vite størelse til listen
     @Override
     public int getItemCount() {
         return meetingList.size();
     }
 
+    //Trenger denne får å hente ut alle ViewIndexene som vi trenger få å setet inn.
     public class ViewHolder extends RecyclerView.ViewHolder{
         final TextView txtStartTime;
         final TextView txtEndTime;
@@ -86,20 +85,21 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
             context = ctx;
             this.txtStartTime = itemView.findViewById(R.id.txtStartTime);
             this.txtEndTime = itemView.findViewById(R.id.txtEndTime);
-
+            //Hvis du trykker på et av elementene.
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    //henter posisjoene til møte
                     int position = getAdapterPosition();
                     meeting = meetingList.get(position);
-
+                    //Hvis møte allerede er valgt
                     if (meeting.isSelected()){
                         CharSequence text = "Du kan ikke velge et møte som allerede er valgt";
                         int duration = Toast.LENGTH_SHORT;
 
                         Toast toast = Toast.makeText(context, text, duration);
                         toast.show();
-                    } else {
+                    } else { //Booker et møte og setter teksten
                         //put on selected style; put text color til red
                         txtStartTime.setTextColor(view.getResources().getColor(R.color.red));
                         txtEndTime.setTextColor(view.getResources().getColor(R.color.red));
@@ -119,7 +119,7 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
-                        Log.e(TAG, "onClick: " + startEncode + " - " + endEncode );
+                        //Legger til møter
                         String url = "http://student.cs.hioa.no/~s344193/AppApi/addReservasjon.php?idRom="+meeting.getIdRoom()+"&startDato="+startEncode+"&sluttDato="+endEncode;
                         url.replace(" ", "20%");
                         Log.e(TAG, "onClick: " + url );
@@ -130,6 +130,7 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
             });
         }
     }
+    //Legger til møter
     public class addMeeting extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -162,10 +163,10 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
             }
             return retur;
         }
-
         @Override
         protected void onPostExecute(String ss) {
             Log.e(TAG, "onPostExecute: Du har opprettet et møte");
+            //Setter møte som selected og legger det til i listen
             meeting.setSelected(true);
             selectedMeetings.add(meeting);
         }
