@@ -40,12 +40,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RomActivity extends AppCompatActivity {
+
+    //Setter de variablen vi trenger.
     private static final String TAG = "RomActivity";
     private String idBuilding;
     private int floorsBuilding;
     private Room room;
     private Toolbar myToolbar;
-    private String roomName;
     private String buildingName;
     private List<Room> roomList = new ArrayList<>();
     private RoomRecyclerViewAdapter roomRecyclerViewAdapter;
@@ -55,49 +56,50 @@ public class RomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rom);
-
+        //Henter ut infoen soom ble sent over fra den andre aktiviteten.
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
             idBuilding = bundle.getString("id");
             buildingName = bundle.getString("buildingName");
-
         }
+        //Henter ut rom i et spesefikt hus.
         String url = "http://student.cs.hioa.no/~s344193/AppApi/getRom.php?idHus=" + idBuilding;
         Log.e(TAG, "onCreate: " + url );
         getRoom task= new getRoom();
         task.execute(new String[]{url});
 
-        //put on toolbar
+        //Oppretter toolbar med tittel.
         myToolbar = findViewById(R.id.toolbar);
         myToolbar.setTitle(buildingName);
         myToolbar.setTitleTextColor(getResources().getColor(R.color.white));
         myToolbar.inflateMenu(R.menu.toolbar_menu);
         setSupportActionBar(myToolbar);
 
+        //Henter ut hus får å finne etasjer.
         String urlHus = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?idHus="+ idBuilding;
         Log.e(TAG, "onCreate: " + urlHus);
         getBuilding taskBuilding = new getBuilding();
         taskBuilding.execute(new String[]{urlHus});
 
     }
-
+    //Metoder for toolbaren.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.toolbar_menu, menu);
         return true;
     }
-
+    //Hva som skjer når man trykkel på knappen i toolbaren
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         showPopup(null);
         return super.onOptionsItemSelected(item);
     }
 
+    //Henter ut alle rommene i bygget.
     public class getRoom extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {
-
             String retur = "";
             String s = "";
             String output = "";
@@ -122,6 +124,7 @@ public class RomActivity extends AppCompatActivity {
                     try {
                         JSONArray roomArray = new JSONArray(output);
                         for (int i = 0; i < roomArray.length(); i++) {
+                            //Henter ut room og legger dem inn i ett array.
                             JSONObject roomObject = roomArray.getJSONObject(i);
                             room = new Room();
                             String id = roomObject.getString("idRom");
@@ -150,8 +153,10 @@ public class RomActivity extends AppCompatActivity {
             }
             return retur;
         }
+
         @Override
         protected void onPostExecute(String ss) {
+            //Fyller opp RV hvis det er ellementer i listen
             Log.e(TAG, "onPostExecute: Har hentet ut room ");
             RecyclerView recyclerView = findViewById(R.id.rvRoom);
             recyclerView.setHasFixedSize(true);
@@ -168,21 +173,24 @@ public class RomActivity extends AppCompatActivity {
 
         }
     }
-
+    //Viser poup
     public void showPopup(Room room){
+        //Oppretter dialog
         myDialog = new Dialog(this);
-
         myDialog.setContentView(R.layout.add_room);
+
+        //henter ut de elementene vi trenger
         EditText txtRoomNr = myDialog.findViewById(R.id.txtRoomRomNr);
         EditText txtRoomCapasity = myDialog.findViewById(R.id.txtRoomRoomCapasity);
         EditText txtRomFloors = myDialog.findViewById(R.id.txtRoomRomFloors);
         EditText txtRoomDescription = myDialog.findViewById(R.id.txtRoomRoomDescription);
         Button btnAddRoom = myDialog.findViewById(R.id.btnAddRoom);
-
+        //Hvis room er null. Noe den alltid er. Gjør det mulig for update i fremtiden.
         if(room == null){
             btnAddRoom.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    //Henter ut info og skjekker om inforen er riktig.
                     String text = "Her er det noe feil i informasjonen";
                     String roomNr = txtRoomNr.getText().toString();
                     String roomCapasity = txtRoomCapasity.getText().toString();
@@ -227,7 +235,7 @@ public class RomActivity extends AppCompatActivity {
                             text += "\nBeskrivelse kan bare indeholde tall og bokstaver";
                         }
                     }
-
+                    //Legger til møte hvis infoen stemmer.
                     if(right){
                         String url = "http://student.cs.hioa.no/~s344193/AppApi/addRom.php?idHus="+idBuilding+"&beskrivelse="+roomDescriptionEncode+"&nummer="+roomNumberEncode+"&kapasitet="+roomCapasity+"&etasje="+roomFloors;
                         Log.e(TAG, "onClick: " + url );
@@ -237,6 +245,7 @@ public class RomActivity extends AppCompatActivity {
                         myDialog.cancel();
 
                     }else {
+                        //Hviser dialog hvis infoen ikke stemmer
                         int duration = Toast.LENGTH_SHORT;
                         Toast toast = Toast.makeText(RomActivity.this, text, duration);
                         toast.show();
@@ -246,7 +255,7 @@ public class RomActivity extends AppCompatActivity {
             myDialog.show();
         }
     }
-
+    //Legger til room.
     public class addRoom extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -290,7 +299,7 @@ public class RomActivity extends AppCompatActivity {
         }
 
     }
-
+    //Henter ut etasjer til bygningen.
     public class getBuilding extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {

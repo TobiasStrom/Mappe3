@@ -38,6 +38,7 @@ public class Meeting {
     public Date getStart() {
         return start;
     }
+    //Konverterer string til rikig Dateform
     public void setStart(String start) {
         Date starts = null;
         try {
@@ -55,6 +56,7 @@ public class Meeting {
     public Date getEnd() {
         return end;
     }
+    //Konverterer string til rikig Dateform
     public void setEnd(String end) {
         Date ends = null;
         try{

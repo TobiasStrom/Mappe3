@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Building {
+    //variablen vi bruker
     private String id;
     private String title;
     private String address;
@@ -86,6 +87,7 @@ public class Building {
         this.lng = lng;
     }
 
+    //Koverterer lat og long til en felles latlng
     public LatLng getLatLng() {
         return latLng = new LatLng(getLat(),getLng());
     }
@@ -100,6 +102,8 @@ public class Building {
     public Date getOpening() {
         return opening;
     }
+
+    //Konverterer string til rikig Dateform
     public void setOpening(String opening) {
         Date openings = null;
         try {
@@ -114,6 +118,8 @@ public class Building {
     public Date getClosing() {
         return closing;
     }
+
+    //Konverterer string til rikig Dateform
     public void setClosing(String closing) {
         Date opening = null;
         try {

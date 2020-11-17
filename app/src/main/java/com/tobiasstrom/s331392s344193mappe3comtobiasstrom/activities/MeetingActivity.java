@@ -41,6 +41,8 @@ import java.util.List;
 import static com.tobiasstrom.s331392s344193mappe3comtobiasstrom.util.Constants.selectedMeetings;
 
 public class MeetingActivity extends AppCompatActivity {
+
+    //Variablen vi trenger.
     private static final String TAG = "MeetingActivity";
     private String idRoom;
     private String idHouse;
@@ -53,13 +55,13 @@ public class MeetingActivity extends AppCompatActivity {
     private ImageButton btnNext;
     private TextView txtDate;
     public Calendar calendar;
+    //får å formatere dato og tid.
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private SimpleDateFormat dateFormatUt = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat dateFormatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private String date;
     private String roomName;
     public Building selectedBuilding = new Building();
-    private List<Meeting> dayMeeting = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,7 @@ public class MeetingActivity extends AppCompatActivity {
         calendar = Calendar.getInstance();
         date = dateFormat.format(calendar.getTime());
         txtDate.setText(date);
+        //Henter ut verdiene som ble sendt over.
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
             idRoom = bundle.getString("id");
@@ -79,23 +82,25 @@ public class MeetingActivity extends AppCompatActivity {
             roomName = bundle.getString("roomName");
         }
         String ut = dateFormatUt.format(calendar.getTime());
+        //Henter ut reservasjoner til dagen som er valgt.
         String url = "http://student.cs.hioa.no/~s344193/AppApi/getReservasjon.php?idRom=" + idRoom+"&day=" + ut;
-
         Log.e(TAG, "onCreate: "+ url);
-
         getMeeting task = new getMeeting();
         task.execute(new String[]{url});
+        //Henter ut hus sånn at det kan hentes ut åpeningstid til bygningen
         String urlHus = "http://student.cs.hioa.no/~s344193/AppApi/getHus.php?idHus="+ idHouse;
         Log.e(TAG, "onCreate: " + urlHus);
         getBuilding taskBuilding = new getBuilding();
         taskBuilding.execute(new String[]{urlHus});
 
+        //Når du bytter til neste dag
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 nextDay();
             }
         });
+        //Når du bytter til forrige dag
         btnLast.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,7 +108,7 @@ public class MeetingActivity extends AppCompatActivity {
             }
         });
 
-        //put on toolbar
+        //Setter toolbar og setter tittel
         Toolbar myToolbar = findViewById(R.id.toolbar2);
         myToolbar.setTitle("RomNr: " + roomName);
         myToolbar.setTitleTextColor(getResources().getColor(R.color.white));
@@ -111,7 +116,7 @@ public class MeetingActivity extends AppCompatActivity {
 
     }
 
-
+    //Henter ut alle møtene og legger det i array
     public class getMeeting extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -168,48 +173,12 @@ public class MeetingActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String ss) {
             Log.e(TAG, "onPostExecute: Har hentet ut room ");
-            //populateRV(meetingList);
+            //Bygger liste med elementene som ble hentet ut.
             buildList();
         }
     }
 
-    public class addMeeting extends AsyncTask<String, Void,String> {
-        @Override
-        protected String doInBackground(String... urls) {
-            String retur = "";
-            String s = "";
-            String output = "";
-            for (String url : urls) {
-                try {
-                    URL urlen = new URL(urls[0]);
-                    HttpURLConnection conn = (HttpURLConnection)
-                            urlen.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setRequestProperty("Accept",
-                            "application/json");
-                    if (conn.getResponseCode() != 200) {
-                        throw new RuntimeException("Failed : HTTP error code : "
-                                + conn.getResponseCode());
-                    }
-                    BufferedReader br = new BufferedReader(new InputStreamReader(
-                            (conn.getInputStream())));
-                    while ((s = br.readLine()) != null) {
-                        output = output + s;
-                    }
-                    conn.disconnect();
-                    return retur;
-                } catch (Exception e) {
-                    return "Noe gikk feil";
-                }
-            }
-            return retur;
-        }
-
-        @Override
-        protected void onPostExecute(String ss) {
-            Log.e(TAG, "onPostExecute: Du har opprettet et møte");
-        }
-    }
+    //Metoden neste dag som endrer valgt dag å henter ut informasjonen.
     public void nextDay(){
         selectedMeetings.clear();
         calendar.add(Calendar.DATE, 1);
@@ -220,9 +189,9 @@ public class MeetingActivity extends AppCompatActivity {
         Log.e(TAG, "onCreate: "+ url);
         getMeeting task = new getMeeting();
         task.execute(new String[]{url});
-        //buildList();
 
     }
+    //Metode lastDay som endrer valgt dag og henter informasjon.
     public void lastDay(){
         selectedMeetings.clear();
         calendar.add(Calendar.DATE, -1);
@@ -233,9 +202,9 @@ public class MeetingActivity extends AppCompatActivity {
         Log.e(TAG, "onCreate: "+ url);
         getMeeting task = new getMeeting();
         task.execute(new String[]{url});
-        ///buildList();
 
     }
+    //Fyller opp listview med de elementene som er valgt.
     public void populateRV(List<Meeting> listMeeting){
         RecyclerView recyclerView = findViewById(R.id.rvMeeting);
         recyclerView.setHasFixedSize(true);
@@ -246,7 +215,7 @@ public class MeetingActivity extends AppCompatActivity {
         }
         recyclerViewAdapter.notifyDataSetChanged();
     }
-
+    //Henter ut en byggning.
     public class getBuilding extends AsyncTask<String, Void,String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -313,14 +282,19 @@ public class MeetingActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(String ss) {
+            //Setter oppningstid
             houseOpening = selectedBuilding.getOpening().getHours();
             houseClosing = selectedBuilding.getClosing().getHours();
             buildList();
         }
     }
+    //Bygger en liste med ellementene vi trenger.
     public void buildList() {
+        //Fjerner ellementene som der der inne
         meetingList.clear();
+        //Går igjennom like mange ganger som opningtiden eksisterer.
         for(int i = houseOpening; i < houseClosing; i++){
+            //Oppretter et nytt møte på en time.
             Meeting newMeeting = new Meeting();
             newMeeting.setIdRoom(idRoom);
             Calendar newCaledar = calendar;
@@ -333,16 +307,21 @@ public class MeetingActivity extends AppCompatActivity {
             newCaledar.set(Calendar.HOUR_OF_DAY,to);
             String end = dateFormatDate.format(newCaledar.getTime());
             newMeeting.setEnd(end);
+            //Hvis det er noe elemeter i selectedMeeting i som er møter den dagen.
             if(selectedMeetings.size()>0){
+                //Går igjennom vært element i listen
                 for (Meeting meeting : selectedMeetings){
+                    //hvis tiden er det samme så setter den inn møte.
                     if (newMeeting.getStart().compareTo(meeting.getStart()) == 0){
                         newMeeting = meeting;
                         break;
                     }
                 }
             }
+            //Legger inn elementene
             meetingList.add(newMeeting);
         }
+        //Bygger RV
         populateRV(meetingList);
     }
 }
