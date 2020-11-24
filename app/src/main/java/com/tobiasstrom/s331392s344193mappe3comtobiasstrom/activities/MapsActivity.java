@@ -158,6 +158,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Button btnRoom = myDialog.findViewById(R.id.btnRoom);
         //Setter tittel og deakriverer knapp
         btnRoom.setEnabled(false);
+        //btnRoom.setTextAppearance(getResources(R.xml.rounded_button_blue_deactivated));
         btnRoom.setText(R.string.room);
 
         //Hvis metoden ikke når inn noen bygning.

@@ -40,4 +40,5 @@
     <string name="description_only_letter_and_number">Beskrivelse kan bare indeholde tall og bokstaver</string>
     <string name="went_wrong">Noe gikk feil</string>
     <string name="greated_a_building">Du har opprettet en bygning</string>
+    <string name="add_room">Legg til rom</string>
 </resources>

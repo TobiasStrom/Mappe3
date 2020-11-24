@@ -94,7 +94,7 @@ public class MeetingRecyclerViewAdapter extends RecyclerView.Adapter<MeetingRecy
                     meeting = meetingList.get(position);
                     //Hvis møte allerede er valgt
                     if (meeting.isSelected()){
-                        CharSequence text = "Du kan ikke velge et møte som allerede er valgt";
+                        CharSequence text = "Du kan ikke velge et møte som allerede er valgt og for å slette må du kontakte administrator";
                         int duration = Toast.LENGTH_SHORT;
 
                         Toast toast = Toast.makeText(context, text, duration);
