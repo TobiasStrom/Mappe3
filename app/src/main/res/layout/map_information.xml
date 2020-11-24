@@ -146,7 +146,8 @@
         android:layout_marginStart="16dp"
         android:text="Button"
         app:layout_constraintBaseline_toBaselineOf="@+id/openBuilding"
-        app:layout_constraintStart_toEndOf="@+id/openBuilding" />
+        app:layout_constraintStart_toEndOf="@+id/openBuilding"
+        />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
