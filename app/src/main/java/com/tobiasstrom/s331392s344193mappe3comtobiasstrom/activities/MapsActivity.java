@@ -325,7 +325,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     while ((s = br.readLine()) != null) {
                         output = output + s;
+                        Log.e(TAG, "doInBackground: " + s );
                     }
+                    //Log.e(TAG, "doInBackground: " + output );
                     conn.disconnect();
                     try {
                         JSONArray building = new JSONArray(output);
