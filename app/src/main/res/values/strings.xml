@@ -41,4 +41,5 @@
     <string name="went_wrong">Noe gikk feil</string>
     <string name="greated_a_building">Du har opprettet en bygning</string>
     <string name="add_room">Legg til rom</string>
+    <string name="min_floors">Det må være minst en etasje</string>
 </resources>

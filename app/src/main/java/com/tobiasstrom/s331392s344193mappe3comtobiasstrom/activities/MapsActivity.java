@@ -207,6 +207,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         int openingInt = Integer.parseInt(opening);
                         int closingInt = Integer.parseInt(closing);
+                        int floorsInt = Integer.parseInt(floors);
                         if(openingInt >= closingInt){
                             right = false;
                             text += "\n" +
@@ -236,6 +237,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             right = false;
                             text += "\n" +
                                     getString(R.string.description_only_letter_and_number);
+                        }
+                        if (floorsInt<1){
+                            right = false;
+                            text += "\n" +
+                                    getString(R.string.min_floors);
                         }
 
                     }
@@ -319,7 +325,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     while ((s = br.readLine()) != null) {
                         output = output + s;
+                        Log.e(TAG, "doInBackground: " + s );
                     }
+                    //Log.e(TAG, "doInBackground: " + output );
                     conn.disconnect();
                     try {
                         JSONArray building = new JSONArray(output);
